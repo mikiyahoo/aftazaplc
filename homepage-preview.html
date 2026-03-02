@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AFTAZA PLC | Real Estate Transaction Advisory Ethiopia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+<style>
+:root{--gold:#c8a34d;--gold-light:#dfc278;--gold-dim:rgba(200,163,77,.12);--dark:#09111f;--navy:#0f172a;--surface:#111827;--card:#141e2f;--border:rgba(200,163,77,.15);--text-primary:#f1f5f9;--text-muted:#94a3b8;--font-display:'Cormorant Garamond',Georgia,serif;--font-body:'DM Sans',system-ui,sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-body);background:var(--dark);color:var(--text-primary);line-height:1.6;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--dark)}::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+::selection{background:rgba(200,163,77,.22);color:var(--gold-light)}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.15;font-weight:400;color:var(--text-primary)}
+a{text-decoration:none}
+.c{padding-left:clamp(1.5rem,5vw,6rem);padding-right:clamp(1.5rem,5vw,6rem);max-width:1440px;margin:0 auto;width:100%}
+.sy{padding-top:clamp(5rem,10vw,8rem);padding-bottom:clamp(5rem,10vw,8rem)}
+.badge{display:inline-flex;align-items:center;gap:.375rem;padding:.25rem .875rem;border:1px solid rgba(200,163,77,.3);color:var(--gold);font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-family:var(--font-body)}
+.badge::before{content:'';display:block;width:5px;height:5px;background:var(--gold);border-radius:50%}
+.gold-rule{display:block;width:48px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin-bottom:1.25rem}
+.btn-p{display:inline-flex;align-items:center;gap:.5rem;padding:.875rem 2rem;background:var(--gold);color:var(--dark);font-family:var(--font-body);font-weight:600;font-size:.875rem;letter-spacing:.05em;text-transform:uppercase;text-decoration:none;border:none;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden}
+.btn-p:hover{background:var(--gold-light);transform:translateY(-1px)}
+.btn-o{display:inline-flex;align-items:center;gap:.5rem;padding:.875rem 2rem;background:transparent;color:var(--text-primary);font-family:var(--font-body);font-weight:500;font-size:.875rem;letter-spacing:.05em;text-decoration:none;border:1px solid rgba(200,163,77,.4);cursor:pointer;transition:all .3s ease}
+.btn-o:hover{border-color:var(--gold);color:var(--gold);background:rgba(200,163,77,.05)}
+.divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.3}
+
+/* Reveal animations */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.rv.vis{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}.d5{transition-delay:.5s}
+
+/* ─── TOP BAR ─── */
+.topbar{background:rgba(9,17,31,.95);border-bottom:1px solid rgba(200,163,77,.1);padding:.45rem 0;display:none}
+@media(min-width:768px){.topbar{display:block}}
+.topbar .c{display:flex;align-items:center;justify-content:space-between}
+.topbar-text{color:#64748b;font-size:.72rem;letter-spacing:.04em;display:flex;align-items:center;gap:.375rem}
+.topbar-right{display:flex;align-items:center;gap:1rem}
+.topbar a{color:#64748b;font-size:.72rem;letter-spacing:.04em;display:flex;align-items:center;gap:.375rem;transition:color .2s}
+.topbar a:hover{color:var(--gold)}
+
+/* ─── HEADER ─── */
+.header{position:sticky;top:0;z-index:50;background:rgba(9,17,31,.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(200,163,77,.08);transition:all .3s ease}
+.header.scrolled{background:rgba(9,17,31,.97);border-bottom-color:rgba(200,163,77,.18);box-shadow:0 4px 30px rgba(0,0,0,.4)}
+.header .c{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo-name{font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:#f1f5f9;letter-spacing:.12em;line-height:1;display:block}
+.logo-tag{display:block;font-size:.6rem;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;font-family:var(--font-body);font-weight:500;margin-top:3px}
+.nav{display:none}
+@media(min-width:1024px){.nav{display:flex;align-items:center;gap:.125rem}}
+.nav a{padding:.5rem .875rem;color:#94a3b8;font-family:var(--font-body);font-size:.78rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;white-space:nowrap}
+.nav a:hover{color:var(--gold)}
+.hamburger{display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:none;border:1px solid rgba(200,163,77,.3);color:#f1f5f9;cursor:pointer;transition:border-color .2s}
+.hamburger:hover{border-color:var(--gold)}
+@media(min-width:1024px){.hamburger{display:none}}
+.header-cta{display:none}
+@media(min-width:1024px){.header-cta{display:inline-flex}}
+
+/* Mobile menu */
+.mob-menu{position:fixed;inset:0;z-index:49;background:rgba(9,17,31,.98);backdrop-filter:blur(20px);overflow-y:auto;padding-top:5rem;padding-bottom:2rem;display:none}
+.mob-menu.open{display:block}
+.mob-link{display:block;padding:1.125rem 0;color:#f1f5f9;font-family:var(--font-display);font-size:1.375rem;border-bottom:1px solid rgba(200,163,77,.1)}
+.mob-link:hover{color:var(--gold)}
+
+/* ─── HERO ─── */
+.hero{position:relative;min-height:calc(100vh - 120px);display:flex;align-items:center;background:var(--dark);overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 40%,rgba(200,163,77,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 80% at 90% 80%,rgba(200,163,77,.03) 0%,transparent 60%),linear-gradient(160deg,#09111f 0%,#0c1628 40%,#09111f 100%);z-index:0}
+.hero-geo{position:absolute;top:0;right:0;width:50%;height:100%;z-index:0;opacity:.4;overflow:hidden}
+.hero-fade{position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent,var(--dark));z-index:1}
+.hero-content{position:relative;z-index:1;padding:4rem 0;max-width:860px}
+.hero-h{font-family:var(--font-display);font-size:clamp(2.75rem,6vw,5.5rem);font-weight:400;color:#f1f5f9;line-height:1.08;letter-spacing:-.01em;margin-bottom:.25rem}
+.hero-h-gold{font-family:var(--font-display);font-size:clamp(2.75rem,6vw,5.5rem);font-weight:400;line-height:1.08;letter-spacing:-.01em;margin-bottom:2rem;background:linear-gradient(120deg,#c8a34d 0%,#dfc278 50%,#c8a34d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:#94a3b8;font-size:clamp(.975rem,1.5vw,1.125rem);line-height:1.75;max-width:640px;margin-bottom:3rem}
+.hero-btns{display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+.hero-stats{display:flex;flex-wrap:wrap;gap:2.5rem;margin-top:4.5rem;padding-top:3rem;border-top:1px solid rgba(200,163,77,.12)}
+.stat-val{font-family:var(--font-display);font-size:clamp(1.75rem,3vw,2.25rem);font-weight:500;color:#c8a34d;line-height:1;margin-bottom:.375rem}
+.stat-lab{color:#475569;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+
+/* ─── POSITIONING ─── */
+.pos-grid{display:grid;grid-template-columns:1fr;gap:3rem}
+@media(min-width:768px){.pos-grid{grid-template-columns:1fr 1fr;gap:5rem}}
+.pillar{background:rgba(20,30,47,.8);border:1px solid rgba(200,163,77,.12);padding:1.125rem 1.375rem;display:flex;align-items:center;gap:1rem;cursor:default;transition:all .35s cubic-bezier(.16,1,.3,1);margin-bottom:.75rem}
+.pillar:hover{border-color:rgba(200,163,77,.35);transform:translateX(4px)}
+.pillar-num{font-family:var(--font-display);font-size:1.25rem;color:#c8a34d;flex-shrink:0;line-height:1}
+.pillar-name{color:#f1f5f9;font-family:var(--font-body);font-size:.875rem;font-weight:600;letter-spacing:.02em;margin-bottom:.2rem}
+.pillar-desc{color:#475569;font-family:var(--font-body);font-size:.775rem}
+.pillar-dot{margin-left:auto;width:6px;height:6px;background:#c8a34d;border-radius:50%;flex-shrink:0;opacity:.5}
+
+/* ─── WHO WE SERVE ─── */
+.wws-bg{background:#0b1528;position:relative;overflow:hidden}
+.wws-grid{display:grid;grid-template-columns:1fr;gap:1.5rem}
+@media(min-width:640px){.wws-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.wws-grid{grid-template-columns:repeat(3,1fr)}}
+.seg-card{background:rgba(20,30,47,.6);border:1px solid rgba(200,163,77,.12);padding:2.25rem;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:all .35s cubic-bezier(.16,1,.3,1);cursor:default}
+.seg-card:hover{border-color:rgba(200,163,77,.35);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.seg-wm{position:absolute;top:1rem;right:1.5rem;font-family:var(--font-display);font-size:4rem;font-weight:600;color:rgba(200,163,77,.06);line-height:1;user-select:none}
+.seg-bar{width:40px;height:3px;background:#c8a34d;margin-bottom:1.5rem}
+.seg-h{font-family:var(--font-display);font-size:1.5rem;color:#f1f5f9;margin-bottom:1rem;line-height:1.25}
+.seg-p{color:#64748b;font-size:.875rem;line-height:1.75;margin-bottom:1.75rem;flex-grow:1}
+.seg-benefit{display:flex;align-items:center;gap:.625rem;color:#94a3b8;font-size:.8125rem;margin-bottom:.5rem}
+.seg-dot{width:5px;height:5px;background:#c8a34d;border-radius:50%;flex-shrink:0}
+.seg-cta{display:inline-flex;align-items:center;gap:.5rem;color:#c8a34d;font-size:.8125rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;transition:gap .2s;margin-top:2rem}
+.seg-cta:hover{gap:.875rem}
+
+/* ─── ECOSYSTEM ─── */
+.eco-bg{background:var(--dark)}
+.eco-grid{display:grid;grid-template-columns:1fr;gap:1px;background:rgba(200,163,77,.1);border:1px solid rgba(200,163,77,.1)}
+@media(min-width:640px){.eco-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.eco-grid{grid-template-columns:repeat(4,1fr)}}
+.eco-step{background:#09111f;padding:2.5rem 2rem;display:flex;flex-direction:column;gap:1.25rem;position:relative;overflow:hidden;transition:background .3s ease;cursor:default}
+.eco-step:hover{background:#0c1628}
+.eco-num{font-size:.675rem;font-weight:700;letter-spacing:.16em;color:#c8a34d;text-transform:uppercase}
+.eco-h{font-family:var(--font-display);font-size:1.625rem;color:#f1f5f9;line-height:1.2}
+.eco-p{color:#64748b;font-size:.8375rem;line-height:1.75;flex-grow:1}
+
+/* ─── DIFFERENTIATOR ─── */
+.diff-row{background:#09111f;padding:2rem 2.5rem;display:grid;grid-template-columns:80px 1fr;gap:2rem;align-items:start;transition:background .3s ease;cursor:default;margin-bottom:1px}
+.diff-row:hover{background:#0c1628}
+.diff-num{font-family:var(--font-display);font-size:3rem;font-weight:400;color:rgba(200,163,77,.15);line-height:1}
+.diff-title{font-family:var(--font-display);font-size:1.375rem;color:#f1f5f9;margin-bottom:.625rem}
+.diff-desc{color:#64748b;font-size:.875rem;line-height:1.75}
+.gov-grid{display:grid;grid-template-columns:1fr;gap:4rem;align-items:center;border-top:1px solid rgba(200,163,77,.1);padding-top:5rem}
+@media(min-width:768px){.gov-grid{grid-template-columns:1fr 1fr}}
+.prin-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.prin-item{display:flex;align-items:center;gap:.625rem;padding:.875rem 1rem;background:rgba(200,163,77,.04);border:1px solid rgba(200,163,77,.1);transition:all .25s ease;cursor:default}
+.prin-item:hover{border-color:rgba(200,163,77,.3);background:rgba(200,163,77,.07)}
+.prin-text{color:#94a3b8;font-size:.775rem;line-height:1.4}
+
+/* ─── METRICS ─── */
+.met-bg{background:#09111f}
+.met-grid{display:grid;grid-template-columns:1fr;background:rgba(200,163,77,.08);border:1px solid rgba(200,163,77,.12)}
+@media(min-width:640px){.met-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.met-grid{grid-template-columns:repeat(4,1fr)}}
+.met-item{padding:2.5rem 2rem;border-right:1px solid rgba(200,163,77,.1);display:flex;flex-direction:column;gap:.75rem;position:relative}
+.met-val{font-family:var(--font-display);font-size:clamp(3rem,5vw,4.5rem);font-weight:300;color:#c8a34d;line-height:1;letter-spacing:-.02em;text-shadow:0 0 40px rgba(200,163,77,.25)}
+.met-label{color:#f1f5f9;font-size:.875rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.met-desc{color:#475569;font-size:.8125rem;line-height:1.65}
+.met-line{position:absolute;top:0;left:2rem;right:2rem;height:2px;background:linear-gradient(90deg,#c8a34d,transparent)}
+
+/* ─── ENGAGEMENT ─── */
+.eng-bg{background:linear-gradient(180deg,#09111f 0%,#0b1528 100%)}
+.eng-grid{display:grid;grid-template-columns:1fr;gap:1.5rem}
+@media(min-width:640px){.eng-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.eng-grid{grid-template-columns:repeat(4,1fr)}}
+.phase-card{position:relative;background:rgba(20,30,47,.5);border:1px solid rgba(200,163,77,.1);padding:2rem;transition:all .35s ease;cursor:default}
+.phase-card:hover{border-color:rgba(200,163,77,.3);background:rgba(20,30,47,.8);transform:translateY(-3px)}
+.phase-num-label{font-size:.675rem;font-weight:700;letter-spacing:.16em;color:#c8a34d;text-transform:uppercase;margin-bottom:.375rem}
+.phase-dur{font-size:.675rem;color:#334155;letter-spacing:.06em;border:1px solid rgba(200,163,77,.1);padding:.15rem .5rem}
+.phase-h{font-family:var(--font-display);font-size:1.25rem;color:#f1f5f9;margin:1.25rem 0 .875rem;line-height:1.25}
+.phase-p{color:#64748b;font-size:.8125rem;line-height:1.75}
+.phase-wm{position:absolute;bottom:1rem;right:1.5rem;font-family:var(--font-display);font-size:3.5rem;font-weight:700;color:rgba(200,163,77,.04);line-height:1;user-select:none}
+
+/* ─── CTA CLOSE ─── */
+.cta-bg{background:#04080f;position:relative;overflow:hidden;text-align:center}
+.cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(200,163,77,.06) 0%,transparent 70%);pointer-events:none}
+.cta-h{font-family:var(--font-display);font-size:clamp(2.25rem,5vw,4.25rem);font-weight:400;color:#f1f5f9;line-height:1.15;max-width:760px;margin:0 auto 1.5rem}
+.aud-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:rgba(200,163,77,.08);border:1px solid rgba(200,163,77,.1);max-width:900px;margin:0 auto 3.5rem}
+@media(min-width:640px){.aud-grid{grid-template-columns:repeat(4,1fr)}}
+.aud-item{background:#04080f;padding:1.5rem;transition:background .25s}
+.aud-item:hover{background:#080f1c}
+.aud-icon{color:#c8a34d;font-size:1rem;margin-bottom:.375rem}
+.aud-label{color:#f1f5f9;font-size:.875rem;font-weight:600;margin-bottom:.2rem}
+.aud-desc{color:#475569;font-size:.775rem;line-height:1.5}
+.cta-btns{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center}
+.cta-trust{margin-top:4rem;color:#1e2d45;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase}
+
+/* ─── FLOATING STACK ─── */
+.float-stack{position:fixed;bottom:1.75rem;right:1.75rem;display:flex;flex-direction:column;gap:.75rem;z-index:40}
+.float-btn{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .25s ease;backdrop-filter:blur(10px)}
+
+/* ─── FOOTER ─── */
+.footer{background:#040b16;border-top:1px solid rgba(200,163,77,.15);position:relative;overflow:hidden}
+.footer-grid{display:grid;grid-template-columns:1fr;gap:3rem;padding-top:5rem;padding-bottom:3rem}
+@media(min-width:640px){.footer-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.footer-grid{grid-template-columns:repeat(4,1fr)}}
+.footer-head{font-size:.7rem;font-weight:700;color:#c8a34d;letter-spacing:.14em;text-transform:uppercase;margin-bottom:1.25rem}
+.footer-link{display:flex;align-items:center;gap:.375rem;color:#64748b;font-size:.8375rem;margin-bottom:.625rem;transition:color .2s}
+.footer-link:hover{color:#c8a34d}
+.footer-link::before{content:'▸';color:rgba(200,163,77,.4);font-size:.625rem}
+.footer-bottom{margin-top:4rem;padding-top:1.5rem;border-top:1px solid rgba(200,163,77,.1);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem}
+.footer-copy{color:#334155;font-size:.775rem}
+.footer-policy{display:flex;gap:1.5rem}
+.footer-policy a{color:#334155;font-size:.775rem;transition:color .2s}
+.footer-policy a:hover{color:#c8a34d}
+.trust-strip{border-left:3px solid #c8a34d;padding-left:1.5rem;margin-bottom:4rem}
+.trust-quote{font-family:var(--font-display);font-size:clamp(1.25rem,2.5vw,1.625rem);color:#f1f5f9;font-style:italic;margin-bottom:.5rem;line-height:1.4}
+.trust-sub{color:#64748b;font-size:.875rem}
+
+@media(max-width:767px){
+  .pos-grid,.gov-grid{grid-template-columns:1fr!important}
+  .diff-row{grid-template-columns:60px 1fr}
+  .diff-num{font-size:2rem}
+  .prin-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="c">
+    <div class="topbar-text">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Kirkos, Addis Ababa, Ethiopia
+    </div>
+    <div class="topbar-right">
+      <a href="tel:+251912370417">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.29 6.29l.44-.44a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        +251 912 370 417
+      </a>
+      <div style="width:1px;height:12px;background:rgba(200,163,77,.2)"></div>
+      <a href="mailto:info@aftazaplc.com">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        info@aftazaplc.com
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header" id="hdr">
+  <div class="c">
+    <a href="/" style="text-decoration:none;flex-shrink:0">
+      <span class="logo-name">AFTAZA PLC</span>
+      <span class="logo-tag">Transaction Governance &amp; Commercialization</span>
+    </a>
+    <nav class="nav">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/services">Services</a>
+      <a href="/ecosystem">Ecosystem</a>
+      <a href="/intelligence">Intelligence</a>
+      <a href="/case-studies">Case Studies</a>
+      <a href="/contact">Contact</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <a href="/contact" class="btn-p header-cta" style="font-size:.75rem;padding:.625rem 1.375rem">
+        Structure an Engagement
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <svg id="ham-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mob-menu">
+  <div class="c" style="padding-top:1rem">
+    <a class="mob-link" href="/" onclick="toggleMenu()">Home</a>
+    <a class="mob-link" href="/about" onclick="toggleMenu()">About</a>
+    <a class="mob-link" href="/services" onclick="toggleMenu()">Services</a>
+    <a class="mob-link" href="/ecosystem" onclick="toggleMenu()">Ecosystem</a>
+    <a class="mob-link" href="/intelligence" onclick="toggleMenu()">Intelligence</a>
+    <a class="mob-link" href="/case-studies" onclick="toggleMenu()">Case Studies</a>
+    <a class="mob-link" href="/contact" onclick="toggleMenu()">Contact</a>
+    <div style="padding-top:2rem">
+      <a href="/contact" class="btn-p" style="width:100%;justify-content:center">Structure an Engagement</a>
+    </div>
+    <div style="padding-top:2rem;color:#64748b;font-size:.8rem">
+      <p>Kirkos, Addis Ababa, Ethiopia</p>
+      <p style="margin-top:.25rem">+251 912 370 417</p>
+      <p style="margin-top:.25rem">info@aftazaplc.com</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-geo">
+    <svg style="position:absolute;top:0;right:0;width:100%;height:100%" viewBox="0 0 600 800" fill="none" preserveAspectRatio="xMidYMid slice">
+      <line x1="600" y1="0" x2="200" y2="800" stroke="rgba(200,163,77,.12)" stroke-width="1"/>
+      <line x1="500" y1="0" x2="100" y2="800" stroke="rgba(200,163,77,.06)" stroke-width="1"/>
+      <line x1="700" y1="0" x2="300" y2="800" stroke="rgba(200,163,77,.06)" stroke-width="1"/>
+      <circle cx="520" cy="160" r="120" stroke="rgba(200,163,77,.06)" stroke-width="1" fill="none"/>
+      <circle cx="520" cy="160" r="80" stroke="rgba(200,163,77,.04)" stroke-width="1" fill="none"/>
+      <rect x="380" y="300" width="180" height="1" fill="rgba(200,163,77,.15)"/>
+      <rect x="420" y="340" width="120" height="1" fill="rgba(200,163,77,.1)"/>
+    </svg>
+  </div>
+  <div class="c" style="position:relative;z-index:1">
+    <div class="hero-content">
+      <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">
+        Real Estate Transaction Advisory & Commercialization Systems in Ethiopia
+      </h1>
+      <span class="badge rv" style="margin-bottom:2rem">Addis Ababa, Ethiopia</span>
+      <h2 class="hero-h rv d1">We Industrialize</h2>
+      <h2 class="hero-h-gold rv d2">Trust and Conversion.</h2>
+      <p class="hero-sub rv d3">
+        AFTAZA PLC operates as a structured commercialization and transaction advisory institution —
+        aligning buyers, developers, investors, and financiers into one documented, risk-reduced system.
+      </p>
+      <div class="hero-btns rv d4">
+        <a href="/contact" class="btn-p">
+          Structure Your Engagement
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="/services" class="btn-o">Explore Our Systems</a>
+      </div>
+      <div class="hero-stats rv d5">
+        <div><div class="stat-val">85%</div><div class="stat-lab">Conversion Quality</div></div>
+        <div><div class="stat-val">92%</div><div class="stat-lab">Pipeline Health</div></div>
+        <div><div class="stat-val">5+</div><div class="stat-lab">Service Modules</div></div>
+        <div><div class="stat-val">100%</div><div class="stat-lab">Documentation-First</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-fade"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     POSITIONING
+══════════════════════════════════════════════ -->
+<section class="sy" style="background:linear-gradient(180deg,var(--dark) 0%,#0b1528 100%);position:relative;overflow:hidden">
+  <div style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(200,163,77,.04) 0%,transparent 70%);pointer-events:none"></div>
+  <div class="c">
+    <div class="pos-grid">
+      <div>
+        <span class="gold-rule rv"></span>
+        <span class="badge rv" style="margin-bottom:1.5rem">Our Institutional Identity</span>
+        <h2 class="rv d1" style="font-family:var(--font-display);font-size:clamp(2rem,3.5vw,3rem);color:#f1f5f9;line-height:1.2;margin-bottom:1.75rem">
+          Not a Broker. Not a Marketing Agency.
+          <em style="color:#c8a34d;font-style:italic"> An Institutional System.</em>
+        </h2>
+        <p class="rv d2" style="color:#94a3b8;font-size:1rem;line-height:1.8;margin-bottom:1.25rem">
+          AFTAZA is a compliance-driven Real Estate Transaction Advisory &amp; Agency firm based in Addis Ababa, Ethiopia. We don't decorate projects. We commercialize them.
+        </p>
+        <p class="rv d3" style="color:#64748b;font-size:.9375rem;line-height:1.8;font-style:italic;border-left:2px solid rgba(200,163,77,.3);padding-left:1rem">
+          Strategy becomes execution. Execution becomes traction.<br>Traction becomes market leadership.
+        </p>
+      </div>
+      <div class="rv d2">
+        <div class="pillar"><span class="pillar-num">01</span><div><div class="pillar-name">Strategy</div><div class="pillar-desc">Market positioning & commercialization architecture</div></div><div class="pillar-dot"></div></div>
+        <div class="pillar"><span class="pillar-num">02</span><div><div class="pillar-name">Sales Operations</div><div class="pillar-desc">Disciplined pipeline governance & CRM frameworks</div></div><div class="pillar-dot"></div></div>
+        <div class="pillar"><span class="pillar-num">03</span><div><div class="pillar-name">Governance</div><div class="pillar-desc">Compliance-first transaction protocols</div></div><div class="pillar-dot"></div></div>
+        <div class="pillar"><span class="pillar-num">04</span><div><div class="pillar-name">Documentation Integrity</div><div class="pillar-desc">Audit-ready records at every transaction stage</div></div><div class="pillar-dot"></div></div>
+        <div class="pillar"><span class="pillar-num">05</span><div><div class="pillar-name">Institutional Trust</div><div class="pillar-desc">Credibility systems that compound over time</div></div><div class="pillar-dot"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     WHO WE SERVE
+══════════════════════════════════════════════ -->
+<section class="sy wws-bg">
+  <div class="divider" style="position:absolute;top:0;left:0;right:0"></div>
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(200,163,77,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,163,77,.03) 1px,transparent 1px);background-size:80px 80px;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 70% 50% at 50% 50%,black 30%,transparent 80%);mask-image:radial-gradient(ellipse 70% 50% at 50% 50%,black 30%,transparent 80%)"></div>
+  <div class="c" style="position:relative">
+    <div style="text-align:center;max-width:600px;margin:0 auto 4rem">
+      <span class="gold-rule rv" style="margin:0 auto 1.25rem"></span>
+      <h2 class="rv d1" style="font-family:var(--font-display);font-size:clamp(2rem,3.5vw,3rem);color:#f1f5f9;line-height:1.2;margin-bottom:1rem">Structured Systems for Every Stakeholder</h2>
+      <p class="rv d2" style="color:#64748b;font-size:.9375rem;line-height:1.7">One institution. Three governed pathways. Every participant protected.</p>
+    </div>
+    <div class="wws-grid">
+      <div class="seg-card rv d1">
+        <span class="seg-wm">01</span>
+        <div class="seg-bar"></div>
+        <h3 class="seg-h">For Developers</h3>
+        <p class="seg-p">We design and operate full-stack commercialization systems — from go-to-market strategy to sales governance and reporting discipline.</p>
+        <div><div class="seg-benefit"><span class="seg-dot"></span>Faster absorption velocity</div><div class="seg-benefit"><span class="seg-dot"></span>Institutional market positioning</div><div class="seg-benefit"><span class="seg-dot"></span>Financeability alignment</div><div class="seg-benefit"><span class="seg-dot"></span>Scalable, repeatable revenue systems</div></div>
+        <a href="/services/developer-commercialization" class="seg-cta">Explore Developer Systems <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+      <div class="seg-card rv d2">
+        <span class="seg-wm">02</span>
+        <div class="seg-bar"></div>
+        <h3 class="seg-h">For Buyers</h3>
+        <p class="seg-p">We serve as independent transaction advisors, guiding buyers through a safe, structured, and verified property acquisition journey.</p>
+        <div><div class="seg-benefit"><span class="seg-dot"></span>Verification and disclosure workflows</div><div class="seg-benefit"><span class="seg-dot"></span>Clean, traceable documentation</div><div class="seg-benefit"><span class="seg-dot"></span>Negotiation clarity and advocacy</div><div class="seg-benefit"><span class="seg-dot"></span>Risk screening at every stage</div></div>
+        <a href="/services/buyer-advisory" class="seg-cta">Start a Safe-Transaction Journey <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+      <div class="seg-card rv d3">
+        <span class="seg-wm">03</span>
+        <div class="seg-bar"></div>
+        <h3 class="seg-h">For Investors &amp; Financiers</h3>
+        <p class="seg-p">We structure projects for credibility, traceability, and disciplined capital deployment — from due diligence to exit pathway documentation.</p>
+        <div><div class="seg-benefit"><span class="seg-dot"></span>Documentation readiness and audit trails</div><div class="seg-benefit"><span class="seg-dot"></span>Investment-grade transaction narratives</div><div class="seg-benefit"><span class="seg-dot"></span>Risk screening and governance systems</div><div class="seg-benefit"><span class="seg-dot"></span>Exit pathway clarity and structuring</div></div>
+        <a href="/services/investor-enablement" class="seg-cta">Enable Investment Readiness <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     ECOSYSTEM
+══════════════════════════════════════════════ -->
+<section class="sy eco-bg" style="position:relative;overflow:hidden">
+  <div class="divider" style="position:absolute;top:0;left:0;right:0"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:clamp(8rem,18vw,20rem);font-weight:700;color:rgba(200,163,77,.018);white-space:nowrap;pointer-events:none;user-select:none;line-height:1;letter-spacing:-.02em">SYSTEM</div>
+  <div class="c" style="position:relative">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:2rem;margin-bottom:4rem">
+      <div style="max-width:520px">
+        <span class="gold-rule rv"></span>
+        <h2 class="rv d1" style="font-family:var(--font-display);font-size:clamp(2rem,3.5vw,3rem);color:#f1f5f9;line-height:1.2;margin-bottom:1rem">The Structured Commercialization Flow</h2>
+        <p class="rv d2" style="color:#64748b;font-size:.9375rem;line-height:1.7">Value moves through a documented system designed to reduce friction and increase conversion.</p>
+      </div>
+      <a href="/ecosystem" class="rv btn-o" style="flex-shrink:0;font-size:.8rem">Full Ecosystem Map <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+    <div class="eco-grid">
+      <div class="eco-step rv d1">
+        <div class="eco-num">Step 01</div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <h3 class="eco-h">Demand</h3>
+        <p class="eco-p">Media, intelligence, and campaign architecture generate qualified interest from the right stakeholders.</p>
+      </div>
+      <div class="eco-step rv d2">
+        <div class="eco-num">Step 02</div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <h3 class="eco-h">Trust</h3>
+        <p class="eco-p">Verification workflows, disclosure discipline, and governance protocols build institutional credibility.</p>
+      </div>
+      <div class="eco-step rv d3">
+        <div class="eco-num">Step 03</div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="1.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        <h3 class="eco-h">Conversion</h3>
+        <p class="eco-p">Sales operations and CRM systems turn trust into structured, documented commitments.</p>
+      </div>
+      <div class="eco-step rv d4">
+        <div class="eco-num">Step 04</div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <h3 class="eco-h">Delivery</h3>
+        <p class="eco-p">Handover readiness and documented closing governance protect all stakeholders at transaction close.</p>
+      </div>
+    </div>
+    <div class="rv" style="text-align:center;margin-top:3rem;padding-top:1.5rem;border-top:1px solid rgba(200,163,77,.1)">
+      <p style="font-family:var(--font-display);font-size:1.125rem;color:#94a3b8;font-style:italic">
+        This is not random selling. <span style="color:#c8a34d">It is engineered commercialization.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     DIFFERENTIATORS
+══════════════════════════════════════════════ -->
+<section class="sy" style="background:linear-gradient(180deg,#0c1628 0%,#09111f 100%);position:relative;overflow:hidden">
+  <div class="divider" style="position:absolute;top:0;left:0;right:0"></div>
+  <div class="c">
+    <div style="max-width:520px;margin-bottom:3.5rem">
+      <span class="gold-rule rv"></span>
+      <h2 class="rv d1" style="font-family:var(--font-display);font-size:clamp(2rem,3.5vw,3rem);color:#f1f5f9;line-height:1.2">The AFTAZA Institutional Difference</h2>
+    </div>
+    <div style="margin-bottom:6rem;background:rgba(200,163,77,.08)">
+      <div class="diff-row rv d1"><span class="diff-num">01</span><div><h3 class="diff-title">Structured Institution</h3><p class="diff-desc">Consultative advisory, documented processes, and disciplined execution — not reactive brokerage or project promotion. Every engagement produces governance-grade outputs.</p></div></div>
+      <div class="diff-row rv d2"><span class="diff-num">02</span><div><h3 class="diff-title">Risk-Reduced Systems</h3><p class="diff-desc">Verification and governance protocols are embedded at every transaction stage, protecting all parties from documentation risk, misrepresentation, and compliance exposure.</p></div></div>
+      <div class="diff-row rv d3"><span class="diff-num">03</span><div><h3 class="diff-title">Performance-Driven Execution</h3><p class="diff-desc">Measurable outcomes: stronger buyer confidence, cleaner transaction flow, better financing readiness, and faster absorption velocity — all tracked against defined KPIs.</p></div></div>
+    </div>
+    <div class="gov-grid">
+      <div>
+        <span class="gold-rule rv"></span>
+        <h2 class="rv d1" style="font-family:var(--font-display);font-size:clamp(1.875rem,3vw,2.75rem);color:#f1f5f9;line-height:1.2;margin-bottom:1.5rem">
+          Credibility <em style="color:#c8a34d;font-style:italic">Compounds</em>
+        </h2>
+        <p class="rv d2" style="color:#94a3b8;font-size:.9375rem;line-height:1.8;margin-bottom:1.5rem">We protect transactions and reputations with documentation-first execution. Governance is not a formality. It is our primary product.</p>
+        <p class="rv d3" style="color:#475569;font-size:.875rem;line-height:1.8;font-style:italic;border-left:2px solid rgba(200,163,77,.3);padding-left:1rem">Each structured transaction builds institutional credibility for the project, the developer, and the market.</p>
+      </div>
+      <div class="prin-grid rv d2">
+        <div class="prin-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg><span class="prin-text">Truth-in-Marketing</span></div>
+        <div class="prin-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg><span class="prin-text">Documented Consent</span></div>
+        <div class="prin-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg><span class="prin-text">Clean Handover Paths</span></div>
+        <div class="prin-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg><span class="prin-text">Data Discipline</span></div>
+        <div class="prin-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg><span class="prin-text">Conflict-of-Interest Hygiene</span></div>
+        <div class="prin-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a34d" stroke-width="2.5" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg><span class="prin-text">Compliance-First Documentation</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     METRICS
+══════════════════════════════════════════════ -->
+<section class="sy met-bg" style="position:relative;overflow:hidden">
+  <div class="divider" style="position:absolute;top:0;left:0;right:0"></div>
+  <div style="position:absolute;bottom:-2rem;right:0;font-family:var(--font-display);font-size:clamp(6rem,14vw,16rem);font-weight:700;color:rgba(200,163,77,.02);pointer-events:none;user-select:none;line-height:1;letter-spacing:-.03em">IMPACT</div>
+  <div class="c" style="position:relative">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:2rem;margin-bottom:4rem">
+      <div>
+        <span class="gold-rule rv"></span>
+        <h2 class="rv d1" style="font-family:var(--font-display);font-size:clamp(2rem,3.5vw,3rem);color:#f1f5f9;line-height:1.2">
+          Measured Impact. <em style="color:#c8a34d">Not Marketing Claims.</em>
+        </h2>
+      </div>
+      <p class="rv d2" style="color:#475569;font-family:var(--font-display);font-size:1.125rem;font-style:italic;max-width:360px;text-align:right">Structured systems create predictable revenue rhythm.</p>
+    </div>
+    <div class="met-grid">
+      <div class="met-item">
+        <div class="met-line" id="ml0"></div>
+        <div class="met-val" data-target="85" data-suffix="%">0%</div>
+        <div class="met-label">Conversion Quality Index</div>
+        <div class="met-desc">Qualified leads completing structured engagement cycles</div>
+      </div>
+      <div class="met-item">
+        <div class="met-line" id="ml1"></div>
+        <div class="met-val" data-target="92" data-suffix="%">0%</div>
+        <div class="met-label">Pipeline Health Score</div>
+        <div class="met-desc">Active transactions maintained within governance frameworks</div>
+      </div>
+      <div class="met-item">
+        <div class="met-line" id="ml2"></div>
+        <div class="met-val" data-target="78" data-suffix="%">0%</div>
+        <div class="met-label">Follow-up Discipline Rate</div>
+        <div class="met-desc">Systematic touchpoint adherence across active pipelines</div>
+      </div>
+      <div class="met-item" style="border-right:none">
+        <div class="met-line" id="ml3"></div>
+        <div class="met-val" data-target="88" data-suffix="%">0%</div>
+        <div class="met-label">Buyer Confidence Rating</div>
+        <div class="met-desc">Post-transaction satisfaction with documentation clarity</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     ENGAGEMENT MODEL
+══════════════════════════════════════════════ -->
+<section class="sy eng-bg" style="position:relative;overflow:hidden">
+  <div class="divider" style="position:absolute;top:0;left:0;right:0"></div>
+  <div class="c">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:2rem;margin-bottom:4rem">
+      <div style="max-width:500px">
+        <span class="gold-rule rv"></span>
+        <h2 class="rv d1" style="font-family:var(--font-display);font-size:clamp(2rem,3.5vw,3rem);color:#f1f5f9;line-height:1.2;margin-bottom:1rem">Structure an Engagement That Delivers Results</h2>
+        <p class="rv d2" style="color:#64748b;font-size:.9375rem;line-height:1.7">We operate with defined KPIs, accountability frameworks, and execution calendars. No ambiguity. No handwaving.</p>
+      </div>
+      <div class="rv" style="padding:1.5rem 2rem;border:1px solid rgba(200,163,77,.2);background:rgba(200,163,77,.04);max-width:280px">
+        <p style="color:#94a3b8;font-size:.8125rem;line-height:1.7">Every engagement begins with a <span style="color:#c8a34d">formal scoping call</span> before any advisory work commences.</p>
+      </div>
+    </div>
+    <div class="eng-grid">
+      <div class="phase-card rv d1">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+          <span class="phase-num-label">Phase 01</span>
+          <span class="phase-dur">Week 1–2</span>
+        </div>
+        <h3 class="phase-h">Discovery &amp; Scoping</h3>
+        <p class="phase-p">Define project parameters, stakeholder landscape, and commercialization constraints. Establish the documentation baseline.</p>
+        <span class="phase-wm">01</span>
+      </div>
+      <div class="phase-card rv d2">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+          <span class="phase-num-label">Phase 02</span>
+          <span class="phase-dur">Week 2–4</span>
+        </div>
+        <h3 class="phase-h">System Design</h3>
+        <p class="phase-p">Architect the transaction framework: documentation structure, sales operations model, and governance layers — before any execution begins.</p>
+        <span class="phase-wm">02</span>
+      </div>
+      <div class="phase-card rv d3">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+          <span class="phase-num-label">Phase 03</span>
+          <span class="phase-dur">Week 4+</span>
+        </div>
+        <h3 class="phase-h">Implementation</h3>
+        <p class="phase-p">Deploy commercialization infrastructure with defined KPIs, accountability frameworks, and execution calendars across all stakeholders.</p>
+        <span class="phase-wm">03</span>
+      </div>
+      <div class="phase-card rv d4">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+          <span class="phase-num-label">Phase 04</span>
+          <span class="phase-dur">Ongoing</span>
+        </div>
+        <h3 class="phase-h">Optimization</h3>
+        <p class="phase-p">Monitor, report, refine. Continuous accountability against structured outcomes with documented performance reviews at every milestone.</p>
+        <span class="phase-wm">04</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     CTA CLOSE
+══════════════════════════════════════════════ -->
+<section class="sy cta-bg">
+  <div class="divider" style="position:absolute;top:0;left:0;right:0"></div>
+  <div class="cta-glow"></div>
+  <svg style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:.3" viewBox="0 0 1440 600" fill="none" preserveAspectRatio="xMidYMid slice">
+    <line x1="0" y1="0" x2="300" y2="600" stroke="rgba(200,163,77,.06)" stroke-width="1"/>
+    <line x1="1440" y1="0" x2="1140" y2="600" stroke="rgba(200,163,77,.06)" stroke-width="1"/>
+  </svg>
+  <div class="c" style="position:relative;text-align:center">
+    <div style="display:flex;justify-content:center;margin-bottom:2rem"><span class="badge rv">Ready to Begin</span></div>
+    <h2 class="cta-h rv d1">
+      Transform Your Project Into a Credible, <em style="color:#c8a34d">Investable Revenue Engine</em>
+    </h2>
+    <p class="rv d2" style="color:#64748b;font-size:1rem;margin-bottom:3rem">Whether you are:</p>
+    <div class="aud-grid rv d3">
+      <div class="aud-item"><div class="aud-icon">◈</div><div class="aud-label">A developer</div><div class="aud-desc">seeking commercialization excellence</div></div>
+      <div class="aud-item"><div class="aud-icon">◈</div><div class="aud-label">An investor</div><div class="aud-desc">requiring documentation discipline</div></div>
+      <div class="aud-item"><div class="aud-icon">◈</div><div class="aud-label">A financier</div><div class="aud-desc">demanding transparency and audit trails</div></div>
+      <div class="aud-item"><div class="aud-icon">◈</div><div class="aud-label">A buyer</div><div class="aud-desc">seeking transaction clarity and protection</div></div>
+    </div>
+    <p class="rv d3" style="font-family:var(--font-display);font-size:1.125rem;color:#94a3b8;font-style:italic;margin-bottom:3rem;max-width:580px;margin-left:auto;margin-right:auto">
+      AFTAZA provides the institutional infrastructure that makes markets believe.
+    </p>
+    <div class="cta-btns rv d4">
+      <a href="/contact" class="btn-p" style="padding:1rem 2.25rem">
+        Structure Your Commercialization System
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="https://wa.me/251912370417?text=Hello%20AFTAZA%20PLC%2C%20I%20would%20like%20to%20discuss%20a%20structured%20real%20estate%20advisory%20engagement." target="_blank" class="btn-o">Speak With AFTAZA</a>
+    </div>
+    <p class="cta-trust rv">Governance · Credibility · Structured Conversion</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<footer class="footer">
+  <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 20% 50%,rgba(200,163,77,.03) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(200,163,77,.02) 0%,transparent 40%);pointer-events:none"></div>
+  <div class="c" style="position:relative">
+    <div class="trust-strip">
+      <p class="trust-quote">"Governance. Credibility. Structured Conversion."</p>
+      <p class="trust-sub">We do not sell projects. We engineer transaction systems.</p>
+    </div>
+    <div class="footer-grid">
+      <div>
+        <span style="font-family:var(--font-display);font-size:1.375rem;color:#f1f5f9;letter-spacing:.08em;font-weight:600;display:block;margin-bottom:.5rem">AFTAZA PLC</span>
+        <div style="width:40px;height:2px;background:linear-gradient(90deg,#c8a34d,transparent);margin-bottom:1.25rem"></div>
+        <p style="color:#64748b;font-size:.8375rem;line-height:1.7;margin-bottom:1rem">Ethiopia's institutional real estate commercialization and transaction advisory firm — designing governance-first systems that align all stakeholders into documented, risk-reduced transaction flows.</p>
+        <p style="color:#475569;font-size:.775rem;letter-spacing:.04em;text-transform:uppercase">Documentation-first · Compliance-driven</p>
+      </div>
+      <div>
+        <div class="footer-head">Navigation</div>
+        <a class="footer-link" href="/">Home</a>
+        <a class="footer-link" href="/about">About</a>
+        <a class="footer-link" href="/services">Services</a>
+        <a class="footer-link" href="/ecosystem">Ecosystem</a>
+        <a class="footer-link" href="/intelligence">Intelligence</a>
+        <a class="footer-link" href="/case-studies">Case Studies</a>
+        <a class="footer-link" href="/contact">Contact</a>
+      </div>
+      <div>
+        <div class="footer-head">Services</div>
+        <a class="footer-link" href="/services/developer-commercialization">Developer Commercialization</a>
+        <a class="footer-link" href="/services/buyer-advisory">Buyer Advisory</a>
+        <a class="footer-link" href="/services/investor-enablement">Investor Structuring</a>
+        <a class="footer-link" href="/services/transaction-governance">Transaction Governance</a>
+        <a class="footer-link" href="/services/media-education">Media Systems</a>
+      </div>
+      <div>
+        <div class="footer-head">Contact</div>
+        <div style="display:flex;gap:.625rem;margin-bottom:.875rem;align-items:flex-start"><span style="font-size:.875rem;flex-shrink:0;margin-top:1px">📍</span><span style="color:#64748b;font-size:.8375rem">Kirkos, Addis Ababa, Ethiopia</span></div>
+        <div style="display:flex;gap:.625rem;margin-bottom:.875rem"><span style="font-size:.875rem">📞</span><a href="tel:+251912370417" style="color:#64748b;font-size:.8375rem;transition:color .2s" onmouseover="this.style.color='#c8a34d'" onmouseout="this.style.color='#64748b'">+251 912 370 417</a></div>
+        <div style="display:flex;gap:.625rem;margin-bottom:1.25rem"><span style="font-size:.875rem">✉</span><a href="mailto:info@aftazaplc.com" style="color:#64748b;font-size:.8375rem;transition:color .2s" onmouseover="this.style.color='#c8a34d'" onmouseout="this.style.color='#64748b'">info@aftazaplc.com</a></div>
+        <div style="display:flex;gap:.75rem">
+          <a href="https://wa.me/251912370417?text=Hello%20AFTAZA%20PLC" target="_blank" style="display:inline-flex;align-items:center;padding:.4rem .875rem;border:1px solid rgba(200,163,77,.25);color:#94a3b8;font-size:.75rem;letter-spacing:.04em;transition:all .2s" onmouseover="this.style.borderColor='#c8a34d';this.style.color='#c8a34d'" onmouseout="this.style.borderColor='rgba(200,163,77,.25)';this.style.color='#94a3b8'">WhatsApp ↗</a>
+          <a href="https://t.me/aftazaplc" target="_blank" style="display:inline-flex;align-items:center;padding:.4rem .875rem;border:1px solid rgba(200,163,77,.25);color:#94a3b8;font-size:.75rem;letter-spacing:.04em;transition:all .2s" onmouseover="this.style.borderColor='#c8a34d';this.style.color='#c8a34d'" onmouseout="this.style.borderColor='rgba(200,163,77,.25)';this.style.color='#94a3b8'">Telegram ↗</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 AFTAZA PLC. All Rights Reserved.</p>
+      <div class="footer-policy"><a href="#">Privacy Policy</a><a href="#">Terms of Engagement</a></div>
+    </div>
+  </div>
+</footer>
+
+<!-- FLOATING CONTACT -->
+<div class="float-stack" id="float-stack">
+  <div style="position:relative;display:flex;align-items:center;justify-content:flex-end">
+    <a href="https://wa.me/251912370417?text=Hello%20AFTAZA%20PLC%2C%20I%20would%20like%20to%20discuss%20a%20structured%20real%20estate%20advisory%20engagement." target="_blank" class="float-btn" style="background:rgba(9,17,31,.9);border:1px solid rgba(200,163,77,.25);color:#94a3b8" onmouseover="this.style.background='#25D366';this.style.borderColor='#25D366';this.style.color='#fff';this.style.boxShadow='0 4px 20px rgba(37,211,102,.4)'" onmouseout="this.style.background='rgba(9,17,31,.9)';this.style.borderColor='rgba(200,163,77,.25)';this.style.color='#94a3b8';this.style.boxShadow='none'" aria-label="WhatsApp">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+    </a>
+  </div>
+  <div style="position:relative;display:flex;align-items:center;justify-content:flex-end">
+    <a href="https://t.me/aftazaplc" target="_blank" class="float-btn" style="background:rgba(9,17,31,.9);border:1px solid rgba(200,163,77,.25);color:#94a3b8" onmouseover="this.style.background='#0088cc';this.style.borderColor='#0088cc';this.style.color='#fff';this.style.boxShadow='0 4px 20px rgba(0,136,204,.4)'" onmouseout="this.style.background='rgba(9,17,31,.9)';this.style.borderColor='rgba(200,163,77,.25)';this.style.color='#94a3b8';this.style.boxShadow='none'" aria-label="Telegram">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+    </a>
+  </div>
+  <div style="position:relative;display:flex;align-items:center;justify-content:flex-end">
+    <a href="tel:+251912370417" class="float-btn" style="background:rgba(9,17,31,.9);border:1px solid rgba(200,163,77,.25);color:#94a3b8" onmouseover="this.style.background='#c8a34d';this.style.borderColor='#c8a34d';this.style.color='#09111f';this.style.boxShadow='0 4px 20px rgba(200,163,77,.4)'" onmouseout="this.style.background='rgba(9,17,31,.9)';this.style.borderColor='rgba(200,163,77,.25)';this.style.color='#94a3b8';this.style.boxShadow='none'" aria-label="Call">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.29 6.29l.44-.44a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    </a>
+  </div>
+</div>
+
+<script>
+// ─── Scroll reveal ───
+const rvEls = document.querySelectorAll('.rv');
+const rvObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('vis'); rvObs.unobserve(e.target); }});
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+rvEls.forEach(el => rvObs.observe(el));
+
+// ─── Header scroll ───
+window.addEventListener('scroll', () => {
+  document.getElementById('hdr').classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+// ─── Mobile menu ───
+let menuOpen = false;
+function toggleMenu() {
+  menuOpen = !menuOpen;
+  document.getElementById('mob-menu').classList.toggle('open', menuOpen);
+  document.body.style.overflow = menuOpen ? 'hidden' : '';
+  document.getElementById('ham-icon').innerHTML = menuOpen
+    ? '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+    : '<line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/>';
+}
+
+// ─── Metric counters ───
+function animateCounter(el, target, suffix, delay) {
+  setTimeout(() => {
+    const dur = 1800, steps = 60, stepVal = target / steps;
+    let cur = 0;
+    const interval = setInterval(() => {
+      cur += stepVal;
+      if (cur >= target) { el.textContent = target + suffix; clearInterval(interval); }
+      else { el.textContent = Math.floor(cur) + suffix; }
+    }, dur / steps);
+  }, delay);
+}
+
+const metObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const els = e.target.querySelectorAll('.met-val');
+      els.forEach((el, i) => {
+        const target = parseInt(el.dataset.target);
+        const suffix = el.dataset.suffix;
+        // Show the top line
+        const line = el.previousElementSibling;
+        if (line) { line.style.opacity = '1'; }
+        animateCounter(el, target, suffix, i * 150);
+      });
+      metObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+const metSection = document.querySelector('.met-grid');
+if (metSection) metObs.observe(metSection);
+</script>
+</body>
+</html>

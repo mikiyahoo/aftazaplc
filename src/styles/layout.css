@@ -1,0 +1,118 @@
+/* ===== LAYOUT UTILITIES ===== */
+.section-y {
+  padding-top: var(--section-y);
+  padding-bottom: var(--section-y);
+}
+
+.container-x {
+  padding-left: var(--container-x);
+  padding-right: var(--container-x);
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.3;
+}
+
+/* ===== GRIDS ===== */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.blueprint-grid {
+  display: grid;
+  gap: 1px;
+  background-color: rgba(200, 163, 77, 0.15);
+  border: 1px solid rgba(200, 163, 77, 0.15);
+}
+
+.grid-pattern-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(200, 163, 77, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 163, 77, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 50% at 50% 50%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 50% at 50% 50%, black 30%, transparent 80%);
+  pointer-events: none;
+}
+
+/* ===== SECTION STYLES ===== */
+.section-light {
+  background: #F8F9FB;
+  position: relative;
+  overflow: hidden;
+}
+.section-light .section-divider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.section-light .grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 70% 50% at 50% 50%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 50%, black 30%, transparent 80%);
+}
+.section-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 4rem;
+}
+.section-header .gold-rule {
+  margin: 0 auto 1.25rem;
+}
+.section-header h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+.section-title-accent {
+  background: linear-gradient(120deg, #c8a34d 0%, #dfc278 55%, #c8a34d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.section-header .subtitle {
+  color: #475569;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+/* ===== SNAP CONTAINER ===== */
+.snap-container {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+.snap-section {
+  height: 100vh;
+  width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
