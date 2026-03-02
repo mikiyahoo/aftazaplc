@@ -1,25 +1,15 @@
-import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { SectionTitle } from "@/components/ui/Section";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { insights } from "@/data/protocols";
 
 export default async function InsightPage({
   params,
 }: {
   params: { slug: string }
 }) {
-  const { data: insight, error } = await supabase
-    .from('insights')
-    .select('*')
-    .eq('slug', params.slug)
-    .single()
-
-  if (error || !insight) {
+  const insight = insights.find((item) => item.slug === params.slug);
+  if (!insight) {
     notFound()
   }
 
@@ -47,7 +37,7 @@ export default async function InsightPage({
               Problem Statement
             </h2>
             <p className="text-slate-600 text-lg font-light leading-relaxed">
-              {insight.problem_statement}
+              {insight.metadata.problemStatement}
             </p>
           </section>
 
@@ -56,7 +46,7 @@ export default async function InsightPage({
               Systemic Cause
             </h2>
             <p className="text-slate-600 text-lg font-light leading-relaxed">
-              {insight.systemic_cause}
+              {insight.metadata.systemicCause}
             </p>
           </section>
 
@@ -65,17 +55,17 @@ export default async function InsightPage({
               Structural Solution
             </h2>
             <p className="text-slate-900 text-lg font-medium leading-relaxed">
-              {insight.structural_solution}
+              {insight.metadata.structuralSolution}
             </p>
           </section>
         </div>
 
         <div className="mt-16 pt-8 border-t border-slate-100 flex justify-between items-center">
           <div className="text-[10px] font-mono text-slate-400">
-            Published: {insight.published_date}
+            Published: {insight.publishedDate}
           </div>
           <Link
-            href={insight.cta_link}
+            href={insight.ctaLink}
             className="btn-primary text-xs"
           >
             Explore Service →

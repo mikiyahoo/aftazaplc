@@ -1,23 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { SectionTitle } from "@/components/ui/Section";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { insights } from "@/data/protocols";
 
 export default async function IntelligenceHub() {
-  const { data: insights, error } = await supabase
-    .from('insights')
-    .select('*')
-    .order('published_date', { ascending: false })
-
-  if (error) {
-    console.error('Error fetching insights:', error)
-    // Optionally show a fallback UI
-  }
-
   return (
     <main className="bg-white pt-32 pb-20">
       <div className="container-x">
@@ -35,7 +20,7 @@ export default async function IntelligenceHub() {
         <div className="grid lg:grid-cols-12 gap-16">
           {/* Main Feed */}
           <div className="lg:col-span-8 space-y-20">
-            {insights?.map((protocol) => (
+            {insights.map((protocol) => (
               <Link
                 key={protocol.slug}
                 href={`/intelligence/insights/${protocol.slug}`}
@@ -49,7 +34,7 @@ export default async function IntelligenceHub() {
                     {protocol.title}
                   </SectionTitle>
                   <p className="text-slate-500 text-lg font-light mb-6">
-                    {protocol.problem_statement}
+                    {protocol.metadata.problemStatement}
                   </p>
                   <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest">
                     <span>Read Protocol</span>
