@@ -43,6 +43,13 @@ export interface SectionTitleProps extends React.HTMLAttributes<HTMLHeadingEleme
 export const SectionTitle = React.forwardRef<HTMLHeadingElement, SectionTitleProps>(
   ({ as = "h2", tone = "light", size = "section", className, ...props }, ref) => {
     const Comp = as;
+    const normalizedClassName =
+      typeof className === "string"
+        ? className
+            .replace(/\buppercase\b/g, "")
+            .replace(/\b(?:sm:|md:|lg:|xl:|2xl:)?!text-[^\s]+\b/g, "")
+            .trim()
+        : className;
 
     return (
       <Comp
@@ -53,7 +60,8 @@ export const SectionTitle = React.forwardRef<HTMLHeadingElement, SectionTitlePro
             ? "text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1]"
             : "text-4xl md:text-5xl font-extrabold leading-[1.15]",
           tone === "dark" ? "text-white" : "text-[#09111f]",
-          className
+          normalizedClassName,
+          "normal-case"
         )}
         {...props}
       />

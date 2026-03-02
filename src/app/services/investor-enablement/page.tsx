@@ -63,7 +63,7 @@ export default function InvestorEnablementPage() {
             <div>
               <SectionTitle tone="dark" className="uppercase tracking-tighter mb-8 leading-none">
                 Capital Does Not Fear Risk. <br />
-                <span className="text-red-500">Capital Fears Opacity.</span>
+                <span className="text-[#c8a34d]">Capital Fears Opacity.</span>
               </SectionTitle>
               <p className="text-slate-400 mb-10 leading-relaxed">
                 Opportunity in Ethiopia is high, but deployment is constrained by systemic governance gaps. We solve for transparency.

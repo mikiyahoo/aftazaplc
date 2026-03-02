@@ -20,7 +20,7 @@ export default function EcosystemPage() {
           <div className="max-w-5xl">
             <motion.div initial={{ width: 0 }} animate={{ width: "80px" }} className="h-1 bg-[#c8a34d] mb-8" />
             <SectionTitle as="h1" size="hero" className="uppercase mb-8 md:!text-7xl lg:!text-8xl tracking-tighter leading-[0.9]">
-              Structured Market <span className="text-slate-400">Infrastructure</span>
+              Structured Market <span className="text-[#c8a34d]">Infrastructure</span>
             </SectionTitle>
             <p className="text-xl md:text-2xl text-slate-500 max-w-3xl font-light leading-relaxed mb-12">
               An integrated real estate ecosystem aligning developers, buyers, investors, governance, and demand into one controlled transaction framework.

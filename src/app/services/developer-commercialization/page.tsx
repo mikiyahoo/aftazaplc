@@ -54,7 +54,7 @@ export default function DeveloperSystemsPage() {
             <span className="text-[#c8a34d] font-mono text-[10px] font-bold tracking-[0.5em] uppercase mb-8 block">Revenue_Silo_01 // Institutional_Grade</span>
             <SectionTitle as="h1" size="hero" className="uppercase tracking-tighter leading-[0.85] mb-10 !text-6xl md:!text-8xl">
               We Engineer the <br /> 
-              <span className="text-slate-400 italic font-light">Commercial</span> Absorption <br />
+              <span className="text-[#c8a34d] italic font-light">Commercial</span> Absorption <br />
               of Projects.
             </SectionTitle>
             <p className="text-xl md:text-3xl text-slate-500 font-light max-w-3xl mb-12 leading-tight">
@@ -75,7 +75,7 @@ export default function DeveloperSystemsPage() {
           <div className="grid lg:grid-cols-12 gap-16 items-start">
             <div className="lg:col-span-5">
               <SectionTitle className="uppercase tracking-tighter leading-none mb-6">
-                Projects Fail Because of <br /> <span className="text-red-600">Unstructured Commercialization.</span>
+                Projects Fail Because of <br /> <span className="text-[#c8a34d]">Unstructured Commercialization.</span>
               </SectionTitle>
               <p className="text-slate-500 text-lg mb-8">
                 Most developments in Ethiopia prioritize construction milestones while neglecting the **Transaction Ecosystem.** This gap creates systemic value-leakage.

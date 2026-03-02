@@ -48,7 +48,7 @@ export default function MediaMarketingPage() {
           <div className="max-w-5xl">
             <motion.div initial={{ width: 0 }} animate={{ width: "100px" }} className="h-1.5 bg-[#c8a34d] mb-10" />
             <SectionTitle as="h1" size="hero" className="uppercase mb-8 !text-6xl md:!text-8xl lg:!text-9xl tracking-tighter leading-[0.85]">
-              We Don’t Create <span className="text-slate-300">Noise.</span> <br />
+              We Don’t Create <span className="text-[#c8a34d]">Noise.</span> <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c8a34d] to-[#9a7b32]">We Engineer Credibility.</span>
             </SectionTitle>
             <p className="text-xl md:text-2xl text-slate-500 max-w-3xl font-light leading-relaxed mb-12">

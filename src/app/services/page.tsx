@@ -142,7 +142,7 @@ export default function ServicesHub() {
                    </div>
                    <div className="terminal-text text-[9px] text-[#c8a34d]">{service.nodeId}</div>
                 </div>
-                <h3 className="text-2xl font-display font-bold uppercase mb-4 group-hover:text-[#c8a34d]">{service.title}</h3>
+                <h3 className="text-2xl font-display font-bold uppercase mb-4 text-white group-hover:text-[#c8a34d]">{service.title}</h3>
                 <p className="text-slate-400 text-sm mb-8 h-12">{service.desc}</p>
                 <div className="inline-flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-[#c8a34d]">
                   Initialize Access <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
@@ -158,7 +158,7 @@ export default function ServicesHub() {
         <Container>
           <div className="mb-16">
             <SectionTitle className="uppercase">
-              Governance-Driven <span className="text-slate-300">Methodology.</span>
+              Governance-Driven <span className="text-[#c8a34d]">Methodology.</span>
             </SectionTitle>
           </div>
           <div className="grid md:grid-cols-4 gap-12">
