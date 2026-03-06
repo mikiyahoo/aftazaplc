@@ -72,11 +72,18 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
 
                   {/* Thumbnail */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={post.thumbnailUrl}
-                    alt={post.title}
-                    className="w-full h-52 md:h-64 rounded-lg object-cover border border-slate-100 shadow-sm"
-                  />
+                  {post.thumbnailUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={post.thumbnailUrl}
+                      alt={post.title}
+                      className="w-full h-52 md:h-64 rounded-lg object-cover border border-slate-100 shadow-sm"
+                    />
+                  ) : (
+                    <div className="w-full h-52 md:h-64 rounded-lg border border-slate-100 shadow-sm bg-slate-100 flex items-center justify-center text-xs text-slate-500 uppercase tracking-widest">
+                      No Thumbnail
+                    </div>
+                  )}
                 </article>
               </Link>
             ))}
@@ -112,4 +119,3 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
     </main>
   );
 }
-

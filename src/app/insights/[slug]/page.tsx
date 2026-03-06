@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { markdownToHtml } from "@/lib/markdown";
 
 interface InsightPageProps {
   params: { slug: string };
@@ -46,6 +47,8 @@ export default async function InsightPage({ params }: InsightPageProps) {
     notFound();
   }
 
+  const contentHtml = markdownToHtml(post.content);
+
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -72,33 +75,36 @@ export default async function InsightPage({ params }: InsightPageProps) {
           href="/insights"
           className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-10 hover:text-[#c8a34d] transition-colors"
         >
-          ← Back to Insights
+          Back to Insights
         </Link>
 
         <span className="text-[#c8a34d] font-mono text-[10px] font-bold uppercase tracking-[0.3em] mb-4 block">
           Aftaza_Insight
         </span>
 
-        <h1 className="text-4xl md:text-5xl font-display font-black uppercase leading-tight mb-6">
-          {post.title}
-        </h1>
+        <h1 className="text-4xl md:text-5xl font-display font-black uppercase leading-tight mb-6">{post.title}</h1>
 
         <div className="mb-8 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-slate-400">
           <span>{post.createdAt.toLocaleDateString()}</span>
         </div>
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={post.thumbnailUrl}
-          alt={post.title}
-          className="mb-10 w-full rounded-lg object-cover border border-slate-100 max-h-80"
-        />
+        {post.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={post.thumbnailUrl}
+            alt={post.title}
+            className="mb-10 w-full rounded-lg object-cover border border-slate-100 max-h-80"
+          />
+        ) : (
+          <div className="mb-10 w-full h-72 rounded-lg border border-slate-100 bg-slate-100 flex items-center justify-center text-xs text-slate-500 uppercase tracking-widest">
+            No Thumbnail
+          </div>
+        )}
 
-        <article className="prose prose-slate max-w-none text-slate-800">
-          <p className="whitespace-pre-wrap text-base leading-relaxed">
-            {post.content}
-          </p>
-        </article>
+        <article
+          className="max-w-none text-slate-800 space-y-4 [&_p]:text-base [&_p]:leading-relaxed [&_h2]:mt-8 [&_h2]:text-3xl [&_h2]:font-black [&_h2]:uppercase [&_h2]:tracking-tight [&_h3]:mt-6 [&_h3]:text-xl [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pl-6 [&_li]:my-1 [&_blockquote]:border-l-4 [&_blockquote]:border-[#c8a34d] [&_blockquote]:pl-4 [&_blockquote]:italic [&_a]:underline [&_a]:underline-offset-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-slate-900 [&_pre]:p-4 [&_pre]:text-slate-100 [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1.5 [&_code]:py-0.5"
+          dangerouslySetInnerHTML={{ __html: contentHtml }}
+        />
 
         <section className="mt-16 pt-8 border-t border-slate-100 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="text-[10px] font-mono uppercase tracking-widest text-slate-400">
@@ -109,13 +115,13 @@ export default async function InsightPage({ params }: InsightPageProps) {
               href="/services/buyer-advisory"
               className="btn-primary text-[10px] font-black uppercase tracking-[0.25em]"
             >
-              Buyer Advisory →
+              Buyer Advisory
             </Link>
             <Link
               href="/services/developer-commercialization"
               className="btn-outline text-[10px] font-black uppercase tracking-[0.25em]"
             >
-              Developer Commercialization →
+              Developer Commercialization
             </Link>
           </div>
         </section>
@@ -123,4 +129,3 @@ export default async function InsightPage({ params }: InsightPageProps) {
     </main>
   );
 }
-

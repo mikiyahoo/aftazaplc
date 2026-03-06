@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
+import { markdownToHtml } from "@/lib/markdown";
 
 type PostFormState = {
   title: string;
@@ -13,6 +14,16 @@ type PostFormState = {
   thumbnailUrl: string;
   published: boolean;
 };
+
+type FormatAction =
+  | "h2"
+  | "h3"
+  | "bold"
+  | "italic"
+  | "link"
+  | "list"
+  | "quote"
+  | "code";
 
 async function fetchPost(id: string) {
   const res = await fetch(`/api/posts/${id}`);
@@ -24,6 +35,7 @@ export default function AdminNewPostPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");
+  const contentRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(!!editId);
@@ -58,6 +70,13 @@ export default function AdminNewPostPage() {
     })();
   }, [editId]);
 
+  const canSubmit =
+    !loading &&
+    form.title.trim().length > 0 &&
+    form.excerpt.trim().length > 0 &&
+    form.content.trim().length > 0 &&
+    (Boolean(file) || form.thumbnailUrl.trim().length > 0);
+
   const effectiveSlug = useMemo(() => {
     if (form.slug) return form.slug;
     return form.title
@@ -66,6 +85,55 @@ export default function AdminNewPostPage() {
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-");
   }, [form.slug, form.title]);
+
+  const contentPreviewHtml = useMemo(() => markdownToHtml(form.content), [form.content]);
+  const thumbnailPreviewUrl = useMemo(() => {
+    if (file) {
+      return URL.createObjectURL(file);
+    }
+    return form.thumbnailUrl.trim();
+  }, [file, form.thumbnailUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (thumbnailPreviewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(thumbnailPreviewUrl);
+      }
+    };
+  }, [thumbnailPreviewUrl]);
+
+  const applyFormatting = (action: FormatAction) => {
+    const area = contentRef.current;
+    if (!area) return;
+
+    const start = area.selectionStart;
+    const end = area.selectionEnd;
+    const selected = form.content.slice(start, end) || "text";
+
+    const wrappers: Record<FormatAction, { before: string; after: string; fallback?: string }> = {
+      h2: { before: "\n## ", after: "\n", fallback: "Section heading" },
+      h3: { before: "\n### ", after: "\n", fallback: "Subheading" },
+      bold: { before: "**", after: "**" },
+      italic: { before: "*", after: "*" },
+      link: { before: "[", after: "](https://example.com)", fallback: "Link text" },
+      list: { before: "\n- ", after: "\n", fallback: "List item" },
+      quote: { before: "\n> ", after: "\n", fallback: "Quoted insight" },
+      code: { before: "\n```\n", after: "\n```\n", fallback: "code snippet" },
+    };
+
+    const formatter = wrappers[action];
+    const text = form.content;
+    const payload = selected === "text" && formatter.fallback ? formatter.fallback : selected;
+    const next = `${text.slice(0, start)}${formatter.before}${payload}${formatter.after}${text.slice(end)}`;
+
+    setForm((prev) => ({ ...prev, content: next }));
+
+    setTimeout(() => {
+      area.focus();
+      const cursor = start + formatter.before.length + payload.length + formatter.after.length;
+      area.setSelectionRange(cursor, cursor);
+    }, 0);
+  };
 
   const handleSubmit = async (publish: boolean) => {
     setLoading(true);
@@ -82,7 +150,8 @@ export default function AdminNewPostPage() {
           body: uploadData,
         });
         if (!uploadRes.ok) {
-          throw new Error("Thumbnail upload failed");
+          const uploadJson = await uploadRes.json().catch(() => ({}));
+          throw new Error(uploadJson.error || "Thumbnail upload failed");
         }
         const json = await uploadRes.json();
         thumbnailUrl = json.url;
@@ -136,15 +205,13 @@ export default function AdminNewPostPage() {
 
         {initializing ? (
           <div className="flex items-center justify-center py-20 text-sm text-slate-500">
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading post…
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading post...
           </div>
         ) : (
           <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
             <section className="space-y-6 bg-white p-8 border border-slate-200 shadow-sm">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  Title
-                </label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Title</label>
                 <input
                   type="text"
                   value={form.title}
@@ -156,9 +223,7 @@ export default function AdminNewPostPage() {
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    Slug
-                  </label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Slug</label>
                   <input
                     type="text"
                     value={effectiveSlug}
@@ -169,9 +234,7 @@ export default function AdminNewPostPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    Publish State
-                  </label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Publish State</label>
                   <div className="flex items-center gap-3 text-xs">
                     <button
                       type="button"
@@ -200,9 +263,7 @@ export default function AdminNewPostPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  Excerpt
-                </label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Excerpt</label>
                 <textarea
                   rows={3}
                   value={form.excerpt}
@@ -214,14 +275,27 @@ export default function AdminNewPostPage() {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  Content (Markdown or Rich Text)
+                  Content (Markdown)
                 </label>
+
+                <div className="flex flex-wrap gap-2 rounded-md border border-slate-200 p-2 bg-slate-50">
+                  <button type="button" onClick={() => applyFormatting("h2")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">H2</button>
+                  <button type="button" onClick={() => applyFormatting("h3")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">H3</button>
+                  <button type="button" onClick={() => applyFormatting("bold")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Bold</button>
+                  <button type="button" onClick={() => applyFormatting("italic")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Italic</button>
+                  <button type="button" onClick={() => applyFormatting("link")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Link</button>
+                  <button type="button" onClick={() => applyFormatting("list")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">List</button>
+                  <button type="button" onClick={() => applyFormatting("quote")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Quote</button>
+                  <button type="button" onClick={() => applyFormatting("code")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Code</button>
+                </div>
+
                 <textarea
+                  ref={contentRef}
                   rows={12}
                   value={form.content}
                   onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
                   className="w-full bg-slate-50 p-4 text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 outline-none border border-transparent focus:border-[#c8a34d]/30 font-mono"
-                  placeholder="Use markdown to structure the full protocol."
+                  placeholder="Use markdown. Example: ## Heading, **bold**, *italic*, [link](https://...)"
                 />
               </div>
 
@@ -252,28 +326,24 @@ export default function AdminNewPostPage() {
                 />
               </div>
 
-              {error && (
-                <p className="text-xs text-red-500 font-medium">
-                  {error}
-                </p>
-              )}
+              {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
 
               <div className="flex flex-wrap gap-4 pt-4">
                 <Button
                   type="button"
                   onClick={() => handleSubmit(false)}
-                  disabled={loading || !form.title}
+                  disabled={!canSubmit}
                   className="px-6 py-3 text-[10px] font-black uppercase tracking-[0.25em] bg-slate-900 text-white hover:bg-slate-800"
                 >
-                  {loading ? "Saving…" : "Save Draft"}
+                  {loading ? "Saving..." : "Save Draft"}
                 </Button>
                 <Button
                   type="button"
                   onClick={() => handleSubmit(true)}
-                  disabled={loading || !form.title}
+                  disabled={!canSubmit}
                   className="px-6 py-3 text-[10px] font-black uppercase tracking-[0.25em] bg-[#c8a34d] text-slate-950 hover:bg-[#e4c56a]"
                 >
-                  {loading ? "Publishing…" : "Publish"}
+                  {loading ? "Publishing..." : "Publish"}
                 </Button>
               </div>
             </section>
@@ -283,26 +353,29 @@ export default function AdminNewPostPage() {
                 <span>Live Preview</span>
               </div>
               <div className="bg-white border border-slate-200 p-8 shadow-lg space-y-6">
-                <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-[#c8a34d]">
-                  Aftaza_Insight
-                </p>
-                <h2 className="text-2xl font-display font-black uppercase tracking-tight">
-                  {form.title || "Untitled Protocol"}
-                </h2>
+                <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-[#c8a34d]">Aftaza_Insight</p>
+                <h2 className="text-2xl font-display font-black uppercase tracking-tight">{form.title || "Untitled Protocol"}</h2>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   {form.excerpt || "Protocol summary will render here for listing views."}
                 </p>
                 <p className="text-[10px] font-mono uppercase tracking-widest text-slate-400">
                   /insights/{effectiveSlug || "slug-pending"}
                 </p>
-                {form.thumbnailUrl && (
+                {thumbnailPreviewUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={form.thumbnailUrl}
+                    src={thumbnailPreviewUrl}
                     alt="Thumbnail preview"
                     className="mt-4 h-40 w-full rounded-lg object-cover border border-slate-100"
                   />
                 )}
+                <div className="border-t border-slate-100 pt-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Content Preview</p>
+                  <div
+                    className="text-sm leading-relaxed text-slate-700 space-y-3 [&_h2]:text-xl [&_h2]:font-black [&_h2]:uppercase [&_h2]:tracking-tight [&_h3]:text-base [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:border-[#c8a34d] [&_blockquote]:pl-3 [&_code]:bg-slate-100 [&_code]:px-1 [&_code]:py-0.5 [&_pre]:bg-slate-900 [&_pre]:text-slate-100 [&_pre]:p-3 [&_pre]:rounded"
+                    dangerouslySetInnerHTML={{ __html: contentPreviewHtml }}
+                  />
+                </div>
               </div>
             </section>
           </div>
@@ -311,4 +384,3 @@ export default function AdminNewPostPage() {
     </main>
   );
 }
-

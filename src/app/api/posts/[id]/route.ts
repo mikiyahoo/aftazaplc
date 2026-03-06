@@ -45,6 +45,11 @@ export async function PATCH(
     }
   }
 
+  const normalizedThumbnailUrl =
+    typeof thumbnailUrl === "string" && thumbnailUrl.trim().length > 0
+      ? thumbnailUrl.trim()
+      : undefined;
+
   const updated = await prisma.post.update({
     where: { id: params.id },
     data: {
@@ -52,7 +57,7 @@ export async function PATCH(
       slug: slug ?? existing.slug,
       excerpt: excerpt ?? existing.excerpt,
       content: content ?? existing.content,
-      thumbnailUrl: thumbnailUrl ?? existing.thumbnailUrl,
+      thumbnailUrl: normalizedThumbnailUrl ?? existing.thumbnailUrl,
       published: typeof published === "boolean" ? published : existing.published,
     },
   });
@@ -73,4 +78,3 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true });
 }
-
