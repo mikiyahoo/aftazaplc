@@ -16,27 +16,32 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
+        try {
+          if (!credentials?.email || !credentials.password) {
+            return null;
+          }
+
+          const account = await getAccountByEmail(credentials.email);
+
+          if (!account || !account.isActive || !account.passwordHash) {
+            return null;
+          }
+
+          const isValid = await compare(credentials.password, account.passwordHash);
+          if (!isValid) {
+            return null;
+          }
+
+          return {
+            id: account.id,
+            email: account.email,
+            name: account.name ?? undefined,
+            role: account.role,
+          } as any;
+        } catch (error) {
+          console.error("Admin credential authorization failed.", error);
           return null;
         }
-
-        const account = await getAccountByEmail(credentials.email);
-
-        if (!account || !account.isActive || !account.passwordHash) {
-          return null;
-        }
-
-        const isValid = await compare(credentials.password, account.passwordHash);
-        if (!isValid) {
-          return null;
-        }
-
-        return {
-          id: account.id,
-          email: account.email,
-          name: account.name ?? undefined,
-          role: account.role,
-        } as any;
       },
     }),
   ],

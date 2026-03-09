@@ -5,12 +5,20 @@ import Button from "@/components/ui/Button";
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const posts = await prisma.post.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  let posts: Awaited<ReturnType<typeof prisma.post.findMany>> = [];
+  let databaseUnavailable = false;
+
+  try {
+    posts = await prisma.post.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    databaseUnavailable = true;
+    console.error("Admin dashboard failed to load posts.", error);
+  }
 
   return (
-    <main data-header-text="light" className="min-h-screen bg-slate-50 pt-24 pb-20">
+    <main data-header-surface="light" className="min-h-screen bg-slate-50 pt-24 pb-20">
       <div className="container-x">
         <header className="flex items-end justify-between mb-10 border-b border-slate-200 pb-6">
           <div>
@@ -38,7 +46,12 @@ export default async function AdminDashboardPage() {
             <span className="w-24 text-center">Status</span>
           </div>
 
-          {posts.length === 0 ? (
+          {databaseUnavailable ? (
+            <div className="px-6 py-10 text-sm text-slate-500">
+              The admin console is reachable, but the posts database is not. Check your Prisma
+              `DATABASE_URL` or Supabase Postgres connection and then refresh this page.
+            </div>
+          ) : posts.length === 0 ? (
             <div className="px-6 py-10 text-sm text-slate-500">
               No posts yet. Use{" "}
               <span className="font-semibold text-slate-800">New Insight</span> to publish your first protocol.
