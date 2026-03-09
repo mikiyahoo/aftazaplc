@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
 import { cloudinary } from "@/lib/cloudinary";
-import { prisma } from "@/lib/prisma";
+import { getAdminAccountFromRequest } from "@/lib/admin-auth";
 
 export async function POST(request: Request) {
-  const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
+  const account = await getAdminAccountFromRequest(request);
 
-  if (!token?.sub) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  const user = await prisma.user.findUnique({
-    where: { id: token.sub },
-    select: { role: true },
-  });
-  if (!user || user.role !== "admin") {
+  if (!account) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

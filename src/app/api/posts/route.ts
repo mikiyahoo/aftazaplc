@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { getAdminAccountFromRequest } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 
 function sanitizeText(value: unknown) {
@@ -19,14 +19,6 @@ function normalizeSlug(value: string) {
     .replace(/-+/g, "-");
 }
 
-async function requireAdmin(request: Request) {
-  const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
-  if (!token || (token as any).role !== "admin") {
-    return null;
-  }
-  return token;
-}
-
 export async function GET() {
   const posts = await prisma.post.findMany({
     orderBy: { createdAt: "desc" },
@@ -36,9 +28,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const token = await requireAdmin(request);
+  const account = await getAdminAccountFromRequest(request);
 
-  if (!token) {
+  if (!account) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -61,7 +53,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
   }
 
-  const authorId = ((token as any).sub as string | undefined)?.trim();
+  const authorId = account.id.trim();
   if (!authorId) {
     return NextResponse.json({ error: "Invalid session" }, { status: 401 });
   }

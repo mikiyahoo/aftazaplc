@@ -1,6 +1,7 @@
 import { compare } from "bcrypt";
 import { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { getAccountByEmail } from "@/lib/supabase/accounts";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -19,26 +20,22 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const { prisma } = await import("@/lib/prisma");
+        const account = await getAccountByEmail(credentials.email);
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
-
-        if (!user) {
+        if (!account || !account.isActive || !account.passwordHash) {
           return null;
         }
 
-        const isValid = await compare(credentials.password, user.password);
+        const isValid = await compare(credentials.password, account.passwordHash);
         if (!isValid) {
           return null;
         }
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.name ?? undefined,
-          role: user.role,
+          id: account.id,
+          email: account.email,
+          name: account.name ?? undefined,
+          role: account.role,
         } as any;
       },
     }),

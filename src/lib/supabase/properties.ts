@@ -6,11 +6,40 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { PropertyFilters, PropertyRecord, PropertyType } from "@/types/property";
 
 const PROPERTY_TABLE = "properties";
+const PROPERTY_IMAGE_BASE = "/property/";
 
 function sortByCreatedAtDesc(properties: PropertyRecord[]) {
   return [...properties].sort(
     (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
   );
+}
+
+function normalizeImagePath(value: unknown, fallback: string) {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return fallback;
+  }
+
+  const normalized = value.trim();
+
+  if (
+    normalized.startsWith("/") ||
+    normalized.startsWith("http://") ||
+    normalized.startsWith("https://") ||
+    normalized.startsWith("data:")
+  ) {
+    return normalized;
+  }
+
+  return `${PROPERTY_IMAGE_BASE}${normalized.replace(/^\.?\/*/, "")}`;
+}
+
+function normalizeParking(value: unknown) {
+  if (typeof value === "boolean") {
+    return value ? 1 : 0;
+  }
+
+  const parsed = Number(value ?? 0);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function normalizeType(value: unknown): PropertyType {
@@ -32,11 +61,14 @@ function normalizeProperty(row: Record<string, unknown>): PropertyRecord {
   const location = String(row.location ?? "");
   const neighborhood = String(row.neighborhood ?? location.split(",")[0]?.trim() ?? "Addis Ababa");
   const city = String(row.city ?? "Addis Ababa");
+  const image = normalizeImagePath(row.image ?? row.thumbnail, "/property/property-1.jpg");
+  const heroImage = normalizeImagePath(row.hero_image ?? row.heroImage ?? row.image, image);
   const gallery = Array.isArray(row.gallery)
-    ? row.gallery.map((item) => String(item))
+    ? row.gallery.map((item) => normalizeImagePath(item, heroImage))
     : Array.isArray(row.images)
-      ? row.images.map((item) => String(item))
+      ? row.images.map((item) => normalizeImagePath(item, heroImage))
       : [];
+  const areaSqm = Number(row.area_sqm ?? row.areaSqm ?? row.area ?? 0);
 
   return {
     id: String(row.id ?? row.slug ?? crypto.randomUUID()),
@@ -53,17 +85,17 @@ function normalizeProperty(row: Record<string, unknown>): PropertyRecord {
     price: Number(row.price ?? 0),
     bedrooms: Number(row.bedrooms ?? 0),
     bathrooms: Number(row.bathrooms ?? 0),
-    parking: Number(row.parking ?? 0),
-    areaSqm: Number(row.area_sqm ?? row.areaSqm ?? 0),
-    areaSqft: Number(row.area_sqft ?? row.areaSqft ?? 0),
+    parking: normalizeParking(row.parking),
+    areaSqm,
+    areaSqft: Number(row.area_sqft ?? row.areaSqft ?? (areaSqm > 0 ? Math.round(areaSqm * 10.7639) : 0)),
     shortDescription: String(row.short_description ?? row.shortDescription ?? row.description ?? ""),
     description: String(row.description ?? row.short_description ?? row.shortDescription ?? ""),
-    image: String(row.image ?? row.thumbnail ?? "/property/property-1.jpg"),
-    heroImage: String(row.hero_image ?? row.heroImage ?? row.image ?? "/property/property-hero.jpg"),
+    image,
+    heroImage,
     gallery:
       gallery.length > 0
         ? gallery
-        : [String(row.hero_image ?? row.heroImage ?? "/property/property-hero.jpg")],
+        : [heroImage],
     viewTags: Array.isArray(row.view_tags)
       ? row.view_tags
           .map((item) => String(item))

@@ -1,14 +1,6 @@
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { getAdminAccountFromRequest } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-
-async function requireAdmin(request: Request) {
-  const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
-  if (!token || (token as any).role !== "admin") {
-    return null;
-  }
-  return token;
-}
 
 export async function GET(
   _request: Request,
@@ -25,8 +17,8 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const token = await requireAdmin(request);
-  if (!token) {
+  const account = await getAdminAccountFromRequest(request);
+  if (!account) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -69,8 +61,8 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const token = await requireAdmin(request);
-  if (!token) {
+  const account = await getAdminAccountFromRequest(request);
+  if (!account) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
