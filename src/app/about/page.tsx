@@ -69,6 +69,7 @@ export default function AboutPage() {
       
       {/* --- HERO SECTION --- */}
       <section 
+        data-header-surface="dark"
         className="relative min-h-[90vh] flex items-center overflow-hidden"
         style={{ 
           backgroundImage: `url('/images/aftaza-transaction-architecture-hero.jpg')`,

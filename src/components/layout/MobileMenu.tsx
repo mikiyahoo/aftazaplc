@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { Variants } from "framer-motion";
-import Button, { DropdownMenuButton } from "@/components/ui/Button";
 import { usePathname, useRouter } from "next/navigation";
-import { SITE, NAV_LINKS } from "@/lib/constants";
+import { DropdownMenuButton } from "@/components/ui/Button";
+import { NAV_LINKS, SITE } from "@/lib/constants";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const router = useRouter();
 
   const filteredNavLinks = NAV_LINKS.filter(
-    item => item.label !== "Contact" && item.label !== "Case Studies"
+    (item) => item.label !== "Contact" && item.label !== "Case Studies"
   );
 
   const handleChildClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -41,83 +41,96 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
   const containerVariants: Variants = {
     closed: { x: "100%", transition: { duration: 0.4, ease: easing } },
-    open: { x: 0, transition: { duration: 0.4, ease: easing } }
+    open: { x: 0, transition: { duration: 0.4, ease: easing } },
   };
 
   const linkVariants = {
     closed: { opacity: 0, x: 20 },
     open: (i: number) => ({
-      opacity: 1, 
-      x: 0, 
-      transition: { delay: 0.1 + i * 0.1, duration: 0.5 }
-    })
+      opacity: 1,
+      x: 0,
+      transition: { delay: 0.1 + i * 0.1, duration: 0.5 },
+    }),
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div 
+        <motion.div
           className="fixed inset-0 z-[200] flex justify-end"
           initial="closed"
           animate="open"
           exit="closed"
         >
-          {/* Backdrop Click-off */}
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-brand-navy/60 backdrop-blur-sm" 
+            className="absolute inset-0 bg-brand-navy/55 backdrop-blur-[6px]"
           />
 
-          <motion.div 
+          <motion.div
             variants={containerVariants}
-            className="relative w-full max-w-md bg-brand-navy h-full shadow-2xl border-l border-white/5 flex flex-col p-8 md:p-12"
+            className="relative my-6 mr-4 flex h-[calc(100dvh-3rem)] w-[min(92vw,520px)] flex-col overflow-hidden border border-white/10 bg-brand-navy/72 p-8 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl md:mr-6 md:p-10"
+            style={{ clipPath: "polygon(0 0, 100% 0, calc(100% - 28px) 100%, 0 100%)" }}
           >
-            {/* Close Button */}
-            <Button onClick={onClose} className="self-end mb-12 text-white/50 hover:text-white flex items-center gap-2 uppercase text-[10px] tracking-[0.3em] font-bold transition-colors">
-              Close <span className="text-xl">×</span>
-            </Button>
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent_24%)]" />
+            <div
+              className="pointer-events-none absolute inset-[1px] border border-white/5"
+              style={{ clipPath: "polygon(0 0, 100% 0, calc(100% - 28px) 100%, 0 100%)" }}
+            />
 
-            {/* Links Section */}
-            <nav className="flex-1 flex flex-col gap-8">
+            <DropdownMenuButton
+              onClick={onClose}
+              className="relative z-10 mb-10 self-end flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-white/55 transition-colors hover:text-white"
+            >
+              Close <span className="text-xl leading-none">X</span>
+            </DropdownMenuButton>
+
+            <nav className="relative z-10 mt-2 flex flex-1 flex-col gap-8 overflow-y-auto pr-2">
               {filteredNavLinks.map((item, i) => {
-                // Determine if this item should have an expandable submenu
                 const hasSubmenu = item.children && item.label !== "Services";
 
                 return (
                   <motion.div key={item.label} custom={i} variants={linkVariants}>
                     {hasSubmenu ? (
-                      // Item with submenu (e.g., Ecosystem)
                       <div className="flex flex-col">
                         <DropdownMenuButton
                           onClick={() => setExpanded(expanded === item.label ? null : item.label)}
-                          className="flex items-center justify-between text-2xl font-bold text-white uppercase tracking-tighter"
+                          className="flex items-center justify-between text-2xl font-bold uppercase tracking-tighter text-white"
                         >
                           {item.label}
-                          <span className={`transition-transform duration-300 ${expanded === item.label ? "rotate-180 text-[#c8a34d]" : ""}`}>
-                            ↓
+                          <span
+                            className={`transition-transform duration-300 ${
+                              expanded === item.label ? "rotate-180 text-[#c8a34d]" : ""
+                            }`}
+                          >
+                            v
                           </span>
                         </DropdownMenuButton>
-                        
+
                         <AnimatePresence>
                           {expanded === item.label && (
-                            <motion.div 
+                            <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="overflow-hidden flex flex-col gap-4 mt-6 ml-2 border-l border-[#c8a34d]/30 pl-6"
+                              className="ml-2 mt-6 flex flex-col gap-4 overflow-hidden border-l border-[#c8a34d]/30 pl-6"
                             >
                               {item.children.map((child) => (
                                 <a
                                   key={child.label}
                                   href={child.href}
                                   onClick={(e) => handleChildClick(e, child.href)}
-                                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                                  className="cursor-pointer text-slate-400 transition-colors hover:text-white"
                                 >
-                                  <span className="block text-sm font-bold uppercase tracking-widest">{child.label}</span>
-                                  <span className="block text-[10px] text-slate-600 mt-1">{child.desc}</span>
+                                  <span className="block text-sm font-bold uppercase tracking-widest">
+                                    {child.label}
+                                  </span>
+                                  <span className="mt-1 block text-[10px] text-slate-600">
+                                    {child.desc}
+                                  </span>
                                 </a>
                               ))}
                             </motion.div>
@@ -125,8 +138,11 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                         </AnimatePresence>
                       </div>
                     ) : (
-                      // Simple link (including Services)
-                      <Link href={item.href} onClick={onClose} className="text-2xl font-bold text-white uppercase tracking-tighter hover:text-[#c8a34d] transition-colors">
+                      <Link
+                        href={item.href}
+                        onClick={onClose}
+                        className="text-2xl font-bold uppercase tracking-tighter text-white transition-colors hover:text-[#c8a34d]"
+                      >
                         {item.label}
                       </Link>
                     )}
@@ -135,14 +151,17 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               })}
             </nav>
 
-            {/* Footer Contact Info */}
-            <div className="pt-8 border-t border-white/5 flex flex-col gap-4">
+            <div className="relative z-10 flex flex-col gap-4 border-t border-white/8 pt-8">
               <Link href="/contact" onClick={onClose} className="btn-primary w-full text-center">
                 Initialize Consultation
               </Link>
               <div className="mt-4 flex flex-col gap-2 opacity-40">
-                <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-white">{SITE.email}</span>
-                <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-white">{SITE.phone}</span>
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white">
+                  {SITE.email}
+                </span>
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white">
+                  {SITE.phone}
+                </span>
               </div>
             </div>
           </motion.div>

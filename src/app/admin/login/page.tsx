@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main data-header-text="light" className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center px-4">
+    <main data-header-surface="dark" className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-slate-900/60 border border-slate-800 rounded-xl p-8 shadow-2xl space-y-8">
         <header className="space-y-2">
           <p className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-[#c8a34d]">
@@ -107,4 +107,3 @@ export default function AdminLoginPage() {
     </main>
   );
 }
-

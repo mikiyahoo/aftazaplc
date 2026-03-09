@@ -4,6 +4,7 @@
   --font-display: var(--font-sora), system-ui, sans-serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
   --font-sans: var(--font-sora), system-ui, sans-serif;
+  --tw-ring-color: rgba(200, 163, 77, 0.45);
 
   /* Brand Colors */
   --gold:         #c8a34d;

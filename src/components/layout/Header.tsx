@@ -1,20 +1,83 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { NAV_LINKS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import MobileMenu from "./MobileMenu";
 import { HamburgerMenuButton } from "@/components/ui/Button";
 
 type NavItem = (typeof NAV_LINKS)[number];
-const easing: [number, number, number, number] = [0.16, 1, 0.3, 1];
+type HeaderSurface = "light" | "dark";
+type HeaderShellMode = "filled" | "transparent";
 
-function DropdownMenu({ item, close }: { item: NavItem; close: () => void }) {
+const easing: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const shellShape = {
+  clipPath: "polygon(0 0, 100% 0, calc(100% - 28px) 100%, 0 100%)",
+} as const;
+const dropdownShape = {
+  clipPath: "polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%)",
+} as const;
+
+function parseHeaderSurface(value: string | null): HeaderSurface | null {
+  if (value === "light" || value === "dark") {
+    return value;
+  }
+
+  return null;
+}
+
+function parseHeaderShellMode(value: string | null): HeaderShellMode | null {
+  if (value === "filled" || value === "transparent") {
+    return value;
+  }
+
+  return null;
+}
+
+function resolveHeaderContext() {
+  const candidates = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-header-surface], [data-header-text], [data-header-shell]")
+  )
+    .map((element) => ({
+      surface:
+        parseHeaderSurface(element.getAttribute("data-header-surface")) ??
+        parseHeaderSurface(element.getAttribute("data-header-text")),
+      shellMode: parseHeaderShellMode(element.getAttribute("data-header-shell")),
+      top: element.getBoundingClientRect().top,
+    }))
+    .filter(
+      (candidate): candidate is { surface: HeaderSurface; shellMode: HeaderShellMode | null; top: number } =>
+        candidate.surface !== null
+    )
+    .sort((a, b) => a.top - b.top);
+
+  const activeCandidates = candidates.filter(({ top }) => top <= window.innerHeight * 0.66);
+  const activeCandidate = activeCandidates[activeCandidates.length - 1] ?? candidates[0];
+
+  return {
+    surface: activeCandidate?.surface ?? "dark",
+    shellMode: activeCandidate?.shellMode ?? null,
+  };
+}
+
+function DropdownMenu({
+  item,
+  close,
+  surface,
+  scrolled,
+}: {
+  item: NavItem;
+  close: () => void;
+  surface: HeaderSurface;
+  scrolled: boolean;
+}) {
   const pathname = usePathname();
   const router = useRouter();
+  const isLightSurface = surface === "light";
 
   if (!item.children) return null;
 
@@ -39,116 +102,151 @@ function DropdownMenu({ item, close }: { item: NavItem; close: () => void }) {
       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       exit={{ opacity: 0, y: 10, filter: "blur(10px)" }}
       transition={{ duration: 0.4, ease: easing }}
-      className="absolute top-full left-0 mt-4 w-80 bg-brand-navy/95 backdrop-blur-2xl border border-white/10 p-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50"
+      className="absolute left-0 top-full z-[170] mt-4 w-80 overflow-visible p-2"
     >
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 border shadow-[0_24px_50px_rgba(0,0,0,0.18)] backdrop-blur-[26px]",
+          isLightSurface
+            ? scrolled
+              ? "border-slate-200/90 bg-white/94 shadow-[0_24px_50px_rgba(15,23,42,0.14)]"
+              : "border-slate-200/70 bg-white/90 shadow-[0_20px_44px_rgba(15,23,42,0.12)]"
+            : scrolled
+              ? "border-white/12 bg-brand-navy/88 shadow-[0_24px_50px_rgba(0,0,0,0.42)]"
+              : "border-white/10 bg-brand-navy/82 shadow-[0_20px_46px_rgba(2,6,23,0.4)]"
+        )}
+        style={dropdownShape}
+      />
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-[1px]",
+          isLightSurface
+            ? scrolled
+              ? "border border-white/78 bg-[linear-gradient(180deg,rgba(255,255,255,0.74),rgba(255,255,255,0.12)_34%,transparent_64%)]"
+              : "border border-white/48 bg-[linear-gradient(180deg,rgba(255,255,255,0.52),rgba(255,255,255,0.08)_34%,transparent_64%)]"
+            : scrolled
+              ? "border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.1),transparent_24%)]"
+              : "border border-white/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),transparent_24%)]"
+        )}
+        style={dropdownShape}
+      />
       <div className="relative z-10 grid gap-1">
         {item.children.map((child, i) => (
           <a
             key={i}
             href={child.href}
             onClick={(e) => handleChildClick(e, child.href)}
-            className="group flex flex-col p-4 transition-all hover:bg-white/5 border border-transparent hover:border-white/5 cursor-pointer"
+            className={cn(
+              "group flex cursor-pointer flex-col border p-4 transition-all",
+              isLightSurface
+                ? scrolled
+                  ? "border-slate-200/55 bg-slate-50/74 backdrop-blur-md hover:border-slate-200/90 hover:bg-white/90"
+                  : "border-slate-200/50 bg-white/68 backdrop-blur-md hover:border-slate-200/90 hover:bg-white/86"
+                : scrolled
+                  ? "border-white/8 bg-white/[0.06] backdrop-blur-md hover:border-white/12 hover:bg-white/[0.1]"
+                  : "border-white/6 bg-white/[0.04] backdrop-blur-md hover:border-white/10 hover:bg-white/[0.08]"
+            )}
           >
-            <span className="text-white text-sm font-medium tracking-[0.1em] group-hover:text-[#c8a34d] transition-colors">
+            <span
+              className={cn(
+                "text-sm font-medium tracking-[0.1em] transition-colors group-hover:text-[#c8a34d]",
+                isLightSurface ? "text-brand-dark" : "text-white"
+              )}
+            >
               {child.label}
             </span>
             {"desc" in child && child.desc && (
-              <span className="text-slate-500 text-[11px] leading-relaxed mt-1 font-medium">
+              <span
+                className={cn(
+                  "mt-1 text-[11px] font-medium leading-relaxed",
+                  isLightSurface ? "text-slate-500" : "text-slate-400"
+                )}
+              >
                 {child.desc}
               </span>
             )}
           </a>
         ))}
       </div>
-      <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#c8a34d]/30 pointer-events-none" />
+      <div className="pointer-events-none absolute right-0 top-0 h-8 w-8 border-r border-t border-[#c8a34d]/30" />
     </motion.div>
   );
 }
 
-const FORCE_NAVY_PATHS = ["/ecosystem", "/intelligence/methodology", "/services"];
-const FORCE_DARK_TEXT_PATHS = ["/intelligence/media-market-education"];
-
 export default function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [lightBg, setLightBg] = useState(false);
+  const [heroSurface, setHeroSurface] = useState<HeaderSurface>("dark");
+  const [shellMode, setShellMode] = useState<HeaderShellMode | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Refs for measuring header height
-  const headerRef = useRef<HTMLElement>(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const intersectingSet = useRef<Set<Element>>(new Set());
-
-  // Scroll listener for shrinking header
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Update header height whenever it changes (resize, scroll‑induced padding change)
   useEffect(() => {
-    const updateHeight = () => {
-      if (headerRef.current) {
-        setHeaderHeight(headerRef.current.offsetHeight);
-      }
+    const updateSurface = () => {
+      const nextContext = resolveHeaderContext();
+      setHeroSurface(nextContext.surface);
+      setShellMode(nextContext.shellMode);
     };
-    updateHeight();
-    window.addEventListener("resize", updateHeight);
-    window.addEventListener("scroll", updateHeight); // height may change on scroll
+
+    const frame = window.requestAnimationFrame(updateSurface);
+    const timeout = window.setTimeout(updateSurface, 180);
+
+    window.addEventListener("resize", updateSurface);
+
     return () => {
-      window.removeEventListener("resize", updateHeight);
-      window.removeEventListener("scroll", updateHeight);
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+      window.removeEventListener("resize", updateSurface);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
+    setMobileOpen(false);
+    setActiveDropdown(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
-  // Observe sections with data-header-text and adapt text colour
-  useEffect(() => {
-    if (headerHeight === 0) return;
-
-    const set = intersectingSet.current;
-    set.clear();
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            set.add(entry.target);
-          } else {
-            set.delete(entry.target);
-          }
-        });
-        // Check if any intersecting section has a light background
-        const anyLight = [...set].some(
-          (el) => el.getAttribute("data-header-text") === "light"
-        );
-        setLightBg(anyLight);
-      },
-      {
-        rootMargin: `-${headerHeight}px 0px 0px 0px`,
-        threshold: 0,
-      }
-    );
-
-    const elements = document.querySelectorAll("[data-header-text]");
-    elements.forEach((el) => observer.observe(el));
-
-    return () => {
-      set.clear();
-      observer.disconnect();
-    };
-  }, [headerHeight]);
-
-  const forceNavy = FORCE_NAVY_PATHS.some((p) => pathname === p || pathname.startsWith(p + "#") || pathname.startsWith(p + "/"));
-  const forceDarkText = FORCE_DARK_TEXT_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
-
-  // Determine the text colour:
-  // - White when scrolled (semi-transparent header) OR when over a dark section
-  // - brand-dark (#09111f) when over a light (white) section
-  // - forceDarkText overrides forceNavy for paths with light backgrounds
-  const textColor = forceDarkText ? "text-brand-dark" : (scrolled || forceNavy ? "text-white" : lightBg ? "text-brand-dark" : "text-white");
+  const usesLightSurface = heroSurface === "light";
+  const showFilledShell =
+    shellMode === "filled"
+      ? true
+      : shellMode === "transparent"
+        ? scrolled
+        : scrolled || usesLightSurface;
+  const textColor = usesLightSurface ? "text-brand-dark" : "text-white";
+  const hamburgerColor = usesLightSurface ? "bg-brand-dark" : "bg-white";
+  const logoSrc = usesLightSurface ? "/logos/aftaza-logo-color.svg" : "/logos/aftaza-logo-white.svg";
+  const shellSurfaceClasses = showFilledShell
+    ? usesLightSurface
+      ? scrolled
+        ? "border-slate-200/85 bg-white/82 shadow-[0_18px_48px_rgba(15,23,42,0.12)] backdrop-blur-[22px]"
+        : "border-slate-200/72 bg-white/80 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur-[20px]"
+      : "border-white/12 bg-brand-navy/80 shadow-[0_18px_48px_rgba(2,6,23,0.34)] backdrop-blur-[22px]"
+    : "border-transparent bg-transparent shadow-none";
+  const shellHighlightClasses = showFilledShell
+    ? usesLightSurface
+      ? scrolled
+        ? "border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.48),transparent_28%)]"
+        : "border-white/52 bg-[linear-gradient(180deg,rgba(255,255,255,0.42),transparent_30%)]"
+      : scrolled
+        ? "border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),transparent_24%)]"
+        : "border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent_24%)]"
+    : "border-transparent bg-transparent";
 
   const handleMouseEnter = (label: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -165,128 +263,130 @@ export default function Header() {
 
   return (
     <>
-      <header
-        ref={headerRef}
-        className={`fixed top-0 left-0 w-full z-[100] transition-all duration-700 ${
-          scrolled || forceNavy
-            ? "bg-brand-navy/90 backdrop-blur-md py-4 border-b border-white/5"
-            : "bg-transparent py-10"
-        }`}
-      >
-        <div className="container-x flex items-center justify-between">
-          {/* Logo Cross‑Fade (switch to colour when header text is dark) */}
-          <Link href="/" className="relative h-10 w-36 overflow-hidden">
-            {/* white logo shows when not scrolled and background is dark */}
-            <div
-              className={`absolute inset-0 transition-all duration-700 transform ${
-                  !scrolled && (forceDarkText || (!forceNavy && lightBg)) ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
-                }`}
-            >
-              <Image
-                src="/logos/aftaza-logo-white.svg"
-                alt="AFTAZA"
-                fill
-                className="object-contain"
-                priority
+      <header className="fixed left-0 right-0 top-0 z-[100] px-3 pt-4 md:px-6 md:pt-6">
+        <div className="container-x pointer-events-none">
+          <div className="pointer-events-auto mx-auto max-w-[1280px]">
+            <div className="relative w-full overflow-visible">
+              <div
+                className={cn(
+                  "pointer-events-none absolute inset-0 border transition-all duration-700",
+                  shellSurfaceClasses
+                )}
+                style={shellShape}
               />
-            </div>
-            {/* colour logo slides up when scrolled or light section detected */}
-            <div
-              className={`absolute inset-0 transition-all duration-700 transform ${
-                  !scrolled && (forceDarkText || (!forceNavy && lightBg)) ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
-                }`}
-            >
-              <Image
-                src="/logos/aftaza-logo-color.svg"
-                alt="AFTAZA"
-                fill
-                className="object-contain"
-                priority
+              <div
+                className={cn(
+                  "pointer-events-none absolute inset-[1px] border transition-all duration-700",
+                  shellHighlightClasses
+                )}
+                style={shellShape}
               />
-            </div>
-          </Link>
 
-          {/* Desktop Nav */}
-          <nav className={`hidden lg:flex items-center gap-12 ${textColor}`}>
-            {filteredNavLinks.map((item) => {
-              const hasDropdown = item.children && item.label !== "Services";
+              <div className="relative flex items-center justify-between gap-4 px-5 py-4 md:px-7 md:py-5">
+                <Link href="/" className="relative block h-10 w-36 overflow-hidden">
+                  <Image
+                    src={logoSrc}
+                    alt="AFTAZA"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </Link>
 
-              return (
-                <div
-                  key={item.label}
-                  className="relative py-2"
-                  onMouseEnter={() => (hasDropdown ? handleMouseEnter(item.label) : undefined)}
-                  onMouseLeave={() => (hasDropdown ? handleMouseLeave() : undefined)}
+                <nav
+                  className={cn(
+                    "absolute left-[46%] hidden -translate-x-1/2 items-center gap-10 xl:left-[45%] xl:gap-12 lg:flex",
+                    textColor
+                  )}
                 >
-                  <Link
-                    href={item.href}
-                    className={`flex items-center gap-2 text-sm font-semibold tracking-[0.12em] transition-colors ${
-                      activeDropdown === item.label ? "text-[#c8a34d]" : textColor
-                    }`}
-                  >
-                    {item.label}
-                    {hasDropdown && (
-                      <motion.span
-                        animate={{ rotate: activeDropdown === item.label ? 180 : 0 }}
-                        className="origin-center"
+                  {filteredNavLinks.map((item) => {
+                    const hasDropdown = item.children && item.label !== "Services";
+
+                    return (
+                      <div
+                        key={item.label}
+                        className="relative py-2"
+                        onMouseEnter={() => (hasDropdown ? handleMouseEnter(item.label) : undefined)}
+                        onMouseLeave={() => (hasDropdown ? handleMouseLeave() : undefined)}
                       >
-                        <svg
-                          width="8"
-                          height="8"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="4"
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            "flex items-center gap-2 text-sm font-semibold tracking-[0.12em] transition-colors",
+                            activeDropdown === item.label ? "text-[#c8a34d]" : textColor
+                          )}
                         >
-                          <polyline points="6 9 12 15 18 9" />
-                        </svg>
-                      </motion.span>
-                    )}
+                          {item.label}
+                          {hasDropdown && (
+                            <motion.span
+                              animate={{ rotate: activeDropdown === item.label ? 180 : 0 }}
+                              className="origin-center"
+                            >
+                              <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              >
+                                <polyline points="6 9 12 15 18 9" />
+                              </svg>
+                            </motion.span>
+                          )}
+                        </Link>
+
+                        <AnimatePresence>
+                          {hasDropdown && activeDropdown === item.label && (
+                            <DropdownMenu
+                              item={item}
+                              close={() => setActiveDropdown(null)}
+                              surface={heroSurface}
+                              scrolled={scrolled}
+                            />
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </nav>
+
+                <div className="ml-auto mr-2 flex items-center gap-4 md:mr-3 md:gap-5 lg:mr-4">
+                  <Link
+                    href="/contact"
+                    className="btn-primary hidden items-center justify-center px-6 py-3 text-[9px] font-bold uppercase tracking-[0.22em] sm:inline-flex"
+                  >
+                    Engage Firm
                   </Link>
 
-                  <AnimatePresence>
-                    {hasDropdown && activeDropdown === item.label && (
-                      <DropdownMenu item={item} close={() => setActiveDropdown(null)} />
-                    )}
-                  </AnimatePresence>
+                  <HamburgerMenuButton
+                    aria-label="Open navigation menu"
+                    aria-expanded={mobileOpen}
+                    className="group flex h-10 w-10 flex-col items-end justify-center gap-1.5"
+                    onClick={() => setMobileOpen(true)}
+                  >
+                    <span
+                      className={cn(
+                        "h-[1px] w-full transition-all duration-300 group-hover:bg-[#c8a34d]",
+                        hamburgerColor
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "h-[1px] w-2/3 transition-all duration-300 group-hover:w-full group-hover:bg-[#c8a34d]",
+                        hamburgerColor
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "h-[1px] w-full transition-all duration-300 group-hover:bg-[#c8a34d]",
+                        hamburgerColor
+                      )}
+                    />
+                  </HamburgerMenuButton>
                 </div>
-              );
-            })}
-          </nav>
-
-          {/* Actions */}
-          <div className="flex items-center gap-8">
-            <Link
-              href="/contact"
-              className={`hidden sm:flex btn-primary !px-6 !py-2.5 !text-[9px] ${textColor}`}
-            >
-              Engage Firm
-            </Link>
-
-            {/* Architectural Hamburger */}
-            <HamburgerMenuButton
-              className="flex flex-col gap-1.5 justify-center items-end w-8 h-8 group"
-              onClick={() => setMobileOpen(true)}
-            >
-              <span
-                className={`w-full h-[1px] transition-all group-hover:bg-[#c8a34d] ${textColor.replace(
-                  "text-",
-                  "bg-"
-                )}`}
-              />
-              <span
-                className={`w-2/3 h-[1px] transition-all group-hover:w-full group-hover:bg-[#c8a34d] ${textColor.replace(
-                  "text-",
-                  "bg-"
-                )}`}
-              />
-              <span
-                className={`w-full h-[1px] transition-all group-hover:bg-[#c8a34d] ${textColor.replace(
-                  "text-",
-                  "bg-"
-                )}`}
-              />
-            </HamburgerMenuButton>
+              </div>
+            </div>
           </div>
         </div>
       </header>

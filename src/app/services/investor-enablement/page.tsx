@@ -28,7 +28,7 @@ export default function InvestorEnablementPage() {
     <main className="bg-slate-950 text-white min-h-screen selection:bg-[#c8a34d] selection:text-white">
       
       {/* HERO: CAPITAL TRUST */}
-      <section className="relative pt-40 pb-32 border-b border-white/5">
+      <section data-header-surface="dark" className="relative pt-40 pb-32 border-b border-white/5">
         <div className="container-x relative z-10">
           <div className="max-w-4xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#c8a34d]/10 border border-[#c8a34d]/20 rounded-full mb-10">

@@ -36,7 +36,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
   return (
     <main className="bg-brand-navy text-white min-h-screen">
       {/* 1. TECHNICAL HEADER / BREADCRUMB */}
-      <section className="pt-32 pb-16 border-b border-white/5 relative overflow-hidden">
+      <section data-header-surface="dark" className="pt-32 pb-16 border-b border-white/5 relative overflow-hidden">
         <div className="absolute inset-0 blueprint-grid opacity-10" />
         <Container>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">

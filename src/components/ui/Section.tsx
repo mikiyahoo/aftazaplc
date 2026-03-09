@@ -18,10 +18,13 @@ export default function Section({
   border = false,
   ...props
 }: SectionProps) {
+  const surface = dark ? "dark" : "light";
+
   return (
     <section
       id={id}
-      data-header-text={dark ? "dark" : "light"}
+      data-header-surface={surface}
+      data-header-text={surface}
       className={cn(
         "section-y relative overflow-hidden", // Inherits: padding-top/bottom: var(--section-y)
         dark ? "bg-brand-navy text-white" : "bg-white text-brand-dark",

@@ -71,6 +71,7 @@ export default function ServicesHub() {
       
       {/* 1. HERO */}
       <section
+        data-header-surface="dark"
         className="relative min-h-[90vh] flex items-center overflow-hidden"
         style={{
           backgroundImage: `url('/images/aftaza-developer-commercialization-system.jpg')`,

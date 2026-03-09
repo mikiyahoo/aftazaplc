@@ -24,6 +24,14 @@ export const NAV_LINKS = [
     ],
   },
   {
+    label: "Properties",
+    href:  "/properties",
+    children: [
+      { label: "Property Landing",  href: "/properties",          desc: "Marketing-led property discovery and consultation entry" },
+      { label: "Browse Listings",   href: "/properties/listings", desc: "Split-screen property browser with advanced filters" },
+    ],
+  },
+  {
     label: "Ecosystem",
     href:  "/ecosystem",
     children: [

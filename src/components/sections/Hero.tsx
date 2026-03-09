@@ -100,6 +100,7 @@ export default function Hero() {
 
   return (
     <section
+      data-header-surface="dark"
       className="relative h-screen w-full flex items-center overflow-hidden bg-brand-navy"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
