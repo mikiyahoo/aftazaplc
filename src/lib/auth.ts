@@ -1,7 +1,7 @@
 import { compare } from "bcrypt";
 import { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getAccountByEmail } from "@/lib/supabase/accounts";
+import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -21,13 +21,16 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          const account = await getAccountByEmail(credentials.email);
+          const email = credentials.email.trim().toLowerCase();
+          const account = await prisma.user.findUnique({
+            where: { email },
+          });
 
-          if (!account || !account.isActive || !account.passwordHash) {
+          if (!account || account.role !== "admin" || !account.password) {
             return null;
           }
 
-          const isValid = await compare(credentials.password, account.passwordHash);
+          const isValid = await compare(credentials.password, account.password);
           if (!isValid) {
             return null;
           }
