@@ -4,6 +4,11 @@ import { getToken } from "next-auth/jwt";
 
 const ACCOUNTS_TABLE = "accounts";
 
+function getSupabasePublicKey() {
+  return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+}
+
 function getLoginRedirect(request: NextRequest) {
   const loginUrl = new URL("/admin/login", request.url);
   loginUrl.searchParams.set("callbackUrl", request.url);
@@ -37,7 +42,7 @@ function normalizeBoolean(value: unknown, fallback = true) {
 async function hasLiveAdminAccess(accountId: string) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? getSupabasePublicKey();
 
   if (!supabaseUrl || !supabaseKey) {
     return false;

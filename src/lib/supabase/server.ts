@@ -2,6 +2,11 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 
+function getSupabasePublicKey() {
+  return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+}
+
 function isPlaceholderValue(value: string | undefined, placeholder: string) {
   return !value || value.includes(placeholder);
 }
@@ -11,7 +16,7 @@ export function isSupabaseConfigured() {
     !isPlaceholderValue(process.env.SUPABASE_SERVICE_ROLE_KEY, "your-supabase-service-role-key")
     ? true
     : !isPlaceholderValue(process.env.NEXT_PUBLIC_SUPABASE_URL, "your-project-ref") &&
-        !isPlaceholderValue(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, "your-supabase-anon-key");
+        !isPlaceholderValue(getSupabasePublicKey(), "your-supabase-anon-key");
 }
 
 export function getSupabaseServerClient() {
@@ -21,7 +26,7 @@ export function getSupabaseServerClient() {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
   const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? getSupabasePublicKey();
 
   if (!supabaseKey) {
     return null;

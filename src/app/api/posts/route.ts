@@ -20,11 +20,16 @@ function normalizeSlug(value: string) {
 }
 
 export async function GET() {
-  const posts = await prisma.post.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    const posts = await prisma.post.findMany({
+      orderBy: { createdAt: "desc" },
+    });
 
-  return NextResponse.json(posts);
+    return NextResponse.json(posts);
+  } catch (error) {
+    console.error("Posts API failed to load posts.", error);
+    return NextResponse.json({ error: "Posts database unavailable" }, { status: 503 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -48,27 +53,32 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const existing = await prisma.post.findUnique({ where: { slug } });
-  if (existing) {
-    return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
+  try {
+    const existing = await prisma.post.findUnique({ where: { slug } });
+    if (existing) {
+      return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
+    }
+
+    const authorId = account.id.trim();
+    if (!authorId) {
+      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+    }
+
+    const post = await prisma.post.create({
+      data: {
+        title,
+        slug,
+        excerpt,
+        content,
+        thumbnailUrl,
+        published,
+        authorId,
+      },
+    });
+
+    return NextResponse.json(post, { status: 201 });
+  } catch (error) {
+    console.error("Posts API failed to create post.", error);
+    return NextResponse.json({ error: "Posts database unavailable" }, { status: 503 });
   }
-
-  const authorId = account.id.trim();
-  if (!authorId) {
-    return NextResponse.json({ error: "Invalid session" }, { status: 401 });
-  }
-
-  const post = await prisma.post.create({
-    data: {
-      title,
-      slug,
-      excerpt,
-      content,
-      thumbnailUrl,
-      published,
-      authorId,
-    },
-  });
-
-  return NextResponse.json(post, { status: 201 });
 }
