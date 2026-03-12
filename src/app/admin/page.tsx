@@ -1,96 +1,174 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import Button from "@/components/ui/Button";
+import {
+  Building2,
+  MessageSquare,
+  Star,
+  Building,
+  ArrowRight,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminDashboardPage() {
-  let posts: Awaited<ReturnType<typeof prisma.post.findMany>> = [];
-  let databaseUnavailable = false;
-
+async function getStats() {
   try {
-    posts = await prisma.post.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    const [
+      propertyCount,
+      inquiryCount,
+      testimonialCount,
+      companyCount,
+      recentInquiries,
+    ] = await Promise.all([
+      prisma.property.count(),
+      prisma.propertyInquiry.count(),
+      prisma.testimonial.count(),
+      prisma.company.count(),
+      prisma.propertyInquiry.findMany({
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        include: { property: true },
+      }),
+    ]);
+    return {
+      propertyCount,
+      inquiryCount,
+      testimonialCount,
+      companyCount,
+      recentInquiries,
+    };
   } catch (error) {
-    databaseUnavailable = true;
-    console.error("Admin dashboard failed to load posts.", error);
+    console.error("Error fetching admin stats:", error);
+    return {
+      propertyCount: 0,
+      inquiryCount: 0,
+      testimonialCount: 0,
+      companyCount: 0,
+      recentInquiries: [],
+    };
   }
+}
+
+export default async function AdminDashboardPage() {
+  const {
+    propertyCount,
+    inquiryCount,
+    testimonialCount,
+    companyCount,
+    recentInquiries,
+  } = await getStats();
+
+  const stats = [
+    {
+      name: "Total Properties",
+      stat: propertyCount,
+      icon: Building2,
+      href: "/admin/properties/manage-properties",
+    },
+    {
+      name: "Total Inquiries",
+      stat: inquiryCount,
+      icon: MessageSquare,
+      href: "/admin/properties/inquiries",
+    },
+    {
+      name: "Total Testimonials",
+      stat: testimonialCount,
+      icon: Star,
+      href: "/admin/properties/testimonials",
+    },
+    {
+      name: "Total Companies",
+      stat: companyCount,
+      icon: Building,
+      href: "/admin/properties/companies",
+    },
+  ];
 
   return (
-    <main data-header-surface="light" className="min-h-screen bg-slate-50 pt-24 pb-20">
-      <div className="container-x">
-        <header className="flex items-end justify-between mb-10 border-b border-slate-200 pb-6">
-          <div>
-            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-[#c8a34d]">
-              AFTAZA_Internal
-            </p>
-            <h1 className="mt-2 text-3xl font-display font-black uppercase tracking-tight">
-              Insights Console
-            </h1>
-            <p className="mt-2 text-xs text-slate-500 max-w-md">
-              Manage institutional insights: drafts, published articles, and protocol visibility.
-            </p>
-          </div>
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
-          <Link href="/admin/new">
-            <Button className="px-6 py-3 text-[10px] font-black uppercase tracking-[0.25em] bg-slate-950 text-white hover:bg-[#c8a34d]">
-              New Insight
-            </Button>
-          </Link>
-        </header>
-
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="border-b border-slate-100 px-6 py-3 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
-            <span>Title</span>
-            <span className="w-24 text-center">Status</span>
-          </div>
-
-          {databaseUnavailable ? (
-            <div className="px-6 py-10 text-sm text-slate-500">
-              The admin console is reachable, but the posts database is not. Check your Prisma
-              `DATABASE_URL` or Supabase Postgres connection and then refresh this page.
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((item) => (
+          <div
+            key={item.name}
+            className="bg-white overflow-hidden shadow rounded-lg"
+          >
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <item.icon
+                    className="h-6 w-6 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      {item.name}
+                    </dt>
+                    <dd className="text-3xl font-bold text-gray-900">
+                      {item.stat}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
             </div>
-          ) : posts.length === 0 ? (
-            <div className="px-6 py-10 text-sm text-slate-500">
-              No posts yet. Use{" "}
-              <span className="font-semibold text-slate-800">New Insight</span> to publish your first protocol.
+            <div className="bg-gray-50 px-5 py-3">
+              <div className="text-sm">
+                <Link
+                  href={item.href}
+                  className="font-medium text-cyan-700 hover:text-cyan-900"
+                >
+                  View all
+                </Link>
+              </div>
             </div>
-          ) : (
-            <ul className="divide-y divide-slate-100">
-              {posts.map((post) => (
-                <li key={post.id} className="px-6 py-4 flex items-center justify-between text-sm">
-                  <div className="space-y-1">
-                    <p className="font-semibold text-slate-900">{post.title}</p>
-                    <p className="text-[11px] font-mono uppercase tracking-widest text-slate-400">
-                      /insights/{post.slug}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <span
-                      className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
-                        post.published
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : "bg-amber-50 text-amber-700 border border-amber-200"
-                      }`}
-                    >
-                      {post.published ? "Published" : "Draft"}
-                    </span>
-                    <Link
-                      href={`/admin/new?id=${post.id}`}
-                      className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-[#c8a34d]"
-                    >
-                      Edit
-                    </Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+          </div>
+        ))}
       </div>
-    </main>
+
+      <div className="mt-8">
+        <h2 className="text-xl font-bold mb-4">Recent Inquiries</h2>
+        <div className="bg-white shadow overflow-hidden rounded-md">
+          <ul className="divide-y divide-gray-200">
+            {recentInquiries.map((inquiry) => (
+              <li key={inquiry.id}>
+                <Link
+                  href={`/admin/properties/inquiries`}
+                  className="block hover:bg-gray-50"
+                >
+                  <div className="px-4 py-4 sm:px-6">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-indigo-600 truncate">
+                        {inquiry.name}
+                      </p>
+                      <div className="ml-2 flex-shrink-0 flex">
+                        <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          {inquiry.property?.title || "General Inquiry"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-2 sm:flex sm:justify-between">
+                      <div className="sm:flex">
+                        <p className="flex items-center text-sm text-gray-500">
+                          {inquiry.email}
+                        </p>
+                      </div>
+                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                        <p>
+                          {new Date(inquiry.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
 

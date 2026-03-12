@@ -5,9 +5,128 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
+// Fix for Supabase SSL issues - add to connection string: sslmode=no-verify
+
+// ============================================
+// Table 1 — Accounts (Admin Users)
+// ============================================
+model Account {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("editor") // admin, editor
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  properties   Property[]
+
+  @@map("accounts")
+}
+
+// ============================================
+// Table 2 — Properties (Main Table)
+// ============================================
+model Property {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  price        Float
+  location     String
+  propertyType String   @map("property_type")
+  status       String   @default("For Sale") // For Sale, For Rent, Sold
+  bedrooms     Int?
+  bathrooms    Int?
+  parking      Int?
+  area         Float?   // in sq meters
+  description  String?  @db.Text
+  featured     Boolean  @default(false)
+  companyId    String?  @map("company_id")
+  createdBy    String?  @map("created_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  company      Company?           @relation(fields: [companyId], references: [id])
+  creator      Account?           @relation(fields: [createdBy], references: [id])
+  images       PropertyImage[]
+  inquiries    PropertyInquiry[]
+
+  @@map("properties")
+}
+
+// ============================================
+// Table 3 — Property Images
+// ============================================
+model PropertyImage {
+  id         String   @id @default(cuid())
+  propertyId String   @map("property_id")
+  imageUrl   String   @map("image_url")
+  isPrimary  Boolean  @default(false) @map("is_primary")
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_images")
+}
+
+// ============================================
+// Table 4 — Companies (Real Estate Companies)
+// ============================================
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  properties Property[]
+
+  @@map("companies")
+}
+
+// ============================================
+// Table 5 — Testimonials (Success Stories)
+// ============================================
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  title     String?
+  quote     String   @db.Text
+  image     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("testimonials")
+}
+
+// ============================================
+// Table 6 — Property Inquiries (Leads)
+// ============================================
+model PropertyInquiry {
+  id         String   @id @default(cuid())
+  propertyId String?  @map("property_id")
+  name       String
+  email      String
+  phone      String?
+  message    String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  property   Property? @relation(fields: [propertyId], references: [id])
+
+  @@map("property_inquiries")
+}
+
+// ============================================
+// Legacy Models (kept for backward compatibility)
+// ============================================
 model User {
   id        String   @id @default(cuid())
   email     String   @unique

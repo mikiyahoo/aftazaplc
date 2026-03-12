@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import PropertyBrowser from "@/components/properties/PropertyBrowser";
+import PropertyFilters from "@/components/properties/PropertyFilters";
 import { parsePropertySearchParams } from "@/lib/properties/config";
 import { getProperties } from "@/lib/supabase/properties";
+import PropertiesList from "./PropertiesList";
 
 export const metadata: Metadata = {
   title: "Property Listings",
@@ -19,14 +20,19 @@ export default async function PropertyListingsPage({
   searchParams = {},
 }: ListingsPageProps) {
   const filters = parsePropertySearchParams(searchParams);
-  const properties = await getProperties(filters, 24);
+  // Fetch first page (limit 12, offset 0) for initial server-rendered content
+  const initialProperties = await getProperties(filters, 12, 0);
 
   return (
     <main data-header-surface="light" className="property-shell min-h-screen">
-      <PropertyBrowser
-        properties={properties}
-        filters={filters}
-        initialSelectedSlug={filters.selected || undefined}
+      <PropertyFilters 
+        actionPath="/properties/listings" 
+        initialFilters={filters} 
+        className="mt-6 mb-6 property-fade-up"
+      />
+      <PropertiesList 
+        initialProperties={initialProperties} 
+        filters={filters} 
       />
     </main>
   );
