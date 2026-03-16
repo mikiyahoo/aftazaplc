@@ -1,29 +1,11 @@
 ---
 deployment:
-tasks:
-
-```
-- export DEPLOYPATH=/home/aftazaco/public_html/aftaza
-
-# create folder if missing
-- /bin/mkdir -p $DEPLOYPATH
-
-# copy project folders
-- /bin/cp -R src $DEPLOYPATH
-- /bin/cp -R prisma $DEPLOYPATH
-- /bin/cp -R public $DEPLOYPATH
-
-# copy config files
-- /bin/cp package.json $DEPLOYPATH
-- /bin/cp package-lock.json $DEPLOYPATH
-- /bin/cp next.config.js $DEPLOYPATH
-- /bin/cp server.js $DEPLOYPATH
-- /bin/cp tsconfig.json $DEPLOYPATH
-
-# install dependencies
-- cd $DEPLOYPATH
-- npm install
-
-# build with limited resources (important for shared hosting)
-- UV_THREADPOOL_SIZE=1 NODE_OPTIONS="--max-old-space-size=512" npm run build
-```
+  tasks:
+    - export DEPLOYPATH=/home/aftazaco/public_html/aftaza
+    - /bin/rm -rf $DEPLOYPATH/*
+    - /bin/cp -R * $DEPLOYPATH/
+    - cd $DEPLOYPATH
+    - /bin/cp .env.example .env 2>/dev/null || true
+    - npm install --production
+    - export NODE_OPTIONS="--max-old-space-size=1024"
+    - npm run build
