@@ -281,7 +281,7 @@ export default async function PropertyDetailPage({
         <section className="mb-12">
           <div className="property-floating-card p-6 md:p-8">
             <PropertyInquiryForm 
-              propertyId={property.id} 
+              propertyId={String(property.id)} 
               propertyTitle={property.title} 
             />
           </div>

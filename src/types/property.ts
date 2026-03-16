@@ -11,13 +11,13 @@ export type PropertyBadge = (typeof PROPERTY_BADGES)[number];
 export type RealEstateType = (typeof REAL_ESTATE_TYPES)[number];
 
 export interface PropertyRecord {
-  id: string;
+  pkey?: number;
   slug: string;
   title: string;
   location: string;
   neighborhood: string;
   city: string;
-  type: PropertyType;
+  propertyType?: PropertyType;
   category: PropertyCategory;
   price: number;
   bedrooms: number;
@@ -31,12 +31,15 @@ export interface PropertyRecord {
   heroImage: string;
   gallery: string[];
   viewTags: PropertyView[];
-  status: "active" | "inactive";
+  status: "active" | "sold" | "pending";
   trustBadges: PropertyBadge[];
   createdAt: string;
   // Company information
   companyId?: string;
   companyName?: string;
+  // Legacy/alias properties for backward compatibility
+  id?: number | string;
+  type?: PropertyType;
 }
 
 export interface PropertyFilters {

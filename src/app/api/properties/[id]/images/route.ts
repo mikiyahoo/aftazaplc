@@ -11,7 +11,7 @@ export async function GET(
     const { id } = params;
 
     const images = await prisma.propertyImage.findMany({
-      where: { propertyId: id },
+      where: { propertyId: Number(id) },
       orderBy: [
         { isPrimary: 'desc' },
         { sortOrder: 'asc' },
@@ -50,7 +50,7 @@ export async function POST(
 
     // Check if property exists
     const property = await prisma.property.findUnique({
-      where: { id },
+      where: { pkey: Number(id) },
     });
 
     if (!property) {
@@ -59,7 +59,7 @@ export async function POST(
 
     // Get current max sort order
     const lastImage = await prisma.propertyImage.findFirst({
-      where: { propertyId: id },
+      where: { propertyId: Number(id) },
       orderBy: { sortOrder: 'desc' },
     });
 
@@ -70,7 +70,7 @@ export async function POST(
       images.map((img: any, index: number) =>
         prisma.propertyImage.create({
           data: {
-            propertyId: id,
+            propertyId: Number(id),
             imageUrl: img.imageUrl,
             isPrimary: img.isPrimary || (index === 0 && startOrder === 0),
             sortOrder: img.sortOrder ?? startOrder + index,

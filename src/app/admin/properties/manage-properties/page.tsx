@@ -15,7 +15,7 @@ import {
 import PropertyImage from "@/components/properties/PropertyImage";
 
 interface Property {
-  id: string;
+  pkey: number;
   title: string;
   slug: string;
   location: string;
@@ -75,16 +75,16 @@ export default function ManagePropertiesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (pkey: number) => {
     if (!confirm("Are you sure you want to delete this property?")) return;
 
     try {
-      const res = await fetch(`/api/properties/${id}`, {
+      const res = await fetch(`/api/properties/${pkey}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
-        setProperties(properties.filter((p) => p.id !== id));
+        setProperties(properties.filter((p) => p.pkey !== pkey));
       } else {
         alert("Failed to delete property");
       }
@@ -174,9 +174,9 @@ export default function ManagePropertiesPage() {
             onChange={(e) => setFilterStatus(e.target.value)}
           >
             <option value="">All Statuses</option>
-            <option value="For Sale">For Sale</option>
-            <option value="For Rent">For Rent</option>
-            <option value="Sold">Sold</option>
+            <option value="active">Active</option>
+            <option value="sold">Sold</option>
+            <option value="pending">Pending</option>
           </select>
 
           <select
@@ -222,7 +222,7 @@ export default function ManagePropertiesPage() {
                 </tr>
               ) : (
                 filteredProperties.map((property) => (
-                  <tr key={property.id} className="hover:bg-slate-50">
+                  <tr key={property.pkey} className="hover:bg-slate-50">
                     <td className="px-6 py-4">
                       <div className="h-16 w-24 overflow-hidden rounded-md bg-slate-100">
                         <PropertyImage
@@ -256,14 +256,16 @@ export default function ManagePropertiesPage() {
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          property.status === "For Sale"
+                          property.status === "active"
                             ? "bg-green-100 text-green-800"
-                            : property.status === "For Rent"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-slate-100 text-slate-800"
+                            : property.status === "sold"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {property.status}
+                        {property.status === "active" ? "Active" : 
+                         property.status === "sold" ? "Sold" : 
+                         property.status === "pending" ? "Pending" : property.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -288,14 +290,14 @@ export default function ManagePropertiesPage() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link
-                          href={`/admin/properties/edit/${property.id}`}
+                          href={`/admin/properties/edit/${property.pkey}`}
                           className="rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-brand-gold"
                           title="Edit"
                         >
                           <Pencil size={16} />
                         </Link>
                         <button
-                          onClick={() => handleDelete(property.id)}
+                          onClick={() => handleDelete(property.pkey)}
                           className="rounded-md p-2 text-slate-600 hover:bg-red-50 hover:text-red-600"
                           title="Delete"
                         >

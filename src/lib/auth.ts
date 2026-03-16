@@ -2,6 +2,7 @@ import { compare } from "bcrypt";
 import { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
+import { getToken } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -69,18 +70,16 @@ export const authOptions: NextAuthOptions = {
 
 export async function requireAdminAuth(request: Request): Promise<{ authenticated: boolean; user?: any }> {
   try {
-    // For simplicity, we'll check if the request has a valid session
-    // In a real implementation, you'd want to check the session properly
-    const cookie = request.headers.get('cookie');
-    
-    // This is a basic check - in production you'd want to verify the session properly
-    if (!cookie || !cookie.includes('next-auth.session-token')) {
+    const token = await getToken({ 
+      req: request as any, 
+      secret: process.env.NEXTAUTH_SECRET 
+    });
+
+    if (!token || !token.role || token.role !== "admin") {
       return { authenticated: false };
     }
 
-    // For now, return authenticated as true
-    // In a real implementation, you'd decode the session token and verify it
-    return { authenticated: true };
+    return { authenticated: true, user: token };
   } catch (error) {
     console.error('Auth check failed:', error);
     return { authenticated: false };

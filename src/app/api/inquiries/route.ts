@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const where: any = {};
 
     if (propertyId) {
-      where.propertyId = propertyId;
+      where.propertyId = Number(propertyId);
     }
 
     const [inquiries, total] = await Promise.all([
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         include: {
           property: {
             select: {
-              id: true,
+              pkey: true,
               title: true,
               slug: true,
             },
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       include: {
         property: {
           select: {
-            id: true,
+            pkey: true,
             title: true,
             slug: true,
           },

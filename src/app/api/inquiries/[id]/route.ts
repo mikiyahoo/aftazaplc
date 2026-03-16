@@ -21,7 +21,7 @@ export async function GET(
       include: {
         property: {
           select: {
-            id: true,
+            pkey: true,
             title: true,
             slug: true,
           },

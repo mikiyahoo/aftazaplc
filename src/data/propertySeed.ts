@@ -186,7 +186,7 @@ export const propertySeed: PropertyRecord[] = [
     heroImage: "/property/property-hero.jpg",
     gallery: ["/property/property-hero.jpg", "/property/property-1.jpg", "/property/property-2.jpg"],
     viewTags: ["City View", "Street Facing"],
-    status: "inactive",
+    status: "pending",
     trustBadges: ["Verified Listing"],
     createdAt: "2026-02-18T16:20:00.000Z",
   },

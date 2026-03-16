@@ -21,7 +21,7 @@ interface DashboardStats {
 }
 
 interface RecentProperty {
-  id: string;
+  pkey: number;
   title: string;
   price: number;
   location: string;
@@ -235,7 +235,7 @@ export default function PropertiesDashboard() {
             </thead>
             <tbody className="divide-y divide-slate-200">
               {recentProperties.map((property) => (
-                <tr key={property.id} className="hover:bg-slate-50">
+                <tr key={property.pkey} className="hover:bg-slate-50">
                   <td className="px-6 py-4">
                     <span className="font-medium text-slate-900">{property.title}</span>
                   </td>
@@ -247,13 +247,15 @@ export default function PropertiesDashboard() {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      property.status === 'For Sale' 
+                      property.status === 'active' 
                         ? 'bg-green-100 text-green-800'
-                        : property.status === 'For Rent'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-slate-100 text-slate-800'
+                        : property.status === 'sold'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {property.status}
+                      {property.status === "active" ? "Active" : 
+                       property.status === "sold" ? "Sold" : 
+                       property.status === "pending" ? "Pending" : property.status}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -262,7 +264,7 @@ export default function PropertiesDashboard() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/admin/properties/edit/${property.id}`}
+                        href={`/admin/properties/edit/${property.pkey}`}
                         className="p-2 text-slate-400 hover:text-[#c8a34d] transition-colors"
                       >
                         <Edit size={16} />
@@ -271,7 +273,7 @@ export default function PropertiesDashboard() {
                         className="p-2 text-slate-400 hover:text-red-500 transition-colors"
                         onClick={async () => {
                           if (confirm('Are you sure you want to delete this property?')) {
-                            await fetch(`/api/properties/${property.id}`, { method: 'DELETE' });
+                            await fetch(`/api/properties/${property.pkey}`, { method: 'DELETE' });
                             window.location.reload();
                           }
                         }}

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 export const getDatabaseProperties = cache(async (options?: {
   featured?: boolean;
-  status?: string; // This should be the normalized status: "active" | "inactive"
+  status?: string; // This should be the normalized status: "active" | "sold" | "pending"
   limit?: number;
   offset?: number;
   location?: string;
@@ -22,17 +22,9 @@ export const getDatabaseProperties = cache(async (options?: {
       where.featured = featured;
     }
 
-    // Convert normalized status to database status values
+    // Use the actual status values from Supabase
     if (status) {
-      if (status === "active") {
-        // For active, we want both "For Sale" and "For Rent"
-        where.status = {
-          in: ["For Sale", "For Rent"]
-        };
-      } else if (status === "inactive") {
-        // For inactive, we want "Sold"
-        where.status = "Sold";
-      }
+      where.status = status;
     }
 
     if (location) {
@@ -96,6 +88,12 @@ export const getDatabasePropertyBySlug = cache(async (slug: string) => {
             { sortOrder: 'asc' },
           ],
         },
+        company: {
+          select: {
+            id: true,
+            name: true,
+          }
+        }
       },
     });
 
@@ -154,10 +152,8 @@ export const getDatabaseFeaturedProperties = cache(async (options?: {
       where.bedrooms = { gte: bedrooms };
     }
 
-    // For featured properties, we want both "For Sale" and "For Rent"
-    where.status = {
-      in: ["For Sale", "For Rent"]
-    };
+    // For featured properties, we want active status
+    where.status = "active";
     where.featured = true;
 
     const properties = await prisma.property.findMany({
@@ -211,7 +207,7 @@ export const createDatabaseInquiry = async (data: {
   try {
     const inquiry = await prisma.propertyInquiry.create({
       data: {
-        propertyId: data.propertyId || null,
+        propertyId: data.propertyId ? Number(data.propertyId) : null,
         name: data.name,
         email: data.email,
         phone: data.phone || null,
@@ -220,7 +216,7 @@ export const createDatabaseInquiry = async (data: {
       include: {
         property: {
           select: {
-            id: true,
+            pkey: true,
             title: true,
             slug: true,
           },

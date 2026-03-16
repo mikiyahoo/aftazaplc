@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
         price: parseFloat(price),
         location,
         propertyType,
-        status: status || 'For Sale',
+        status: status || 'active',
         bedrooms: (bedrooms || bedrooms === 0) ? parseInt(bedrooms) : null,
         bathrooms: (bathrooms || bathrooms === 0) ? parseInt(bathrooms) : null,
         parking: (parking || parking === 0) ? parseInt(parking) : null,

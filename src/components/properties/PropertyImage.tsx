@@ -42,7 +42,14 @@ export default function PropertyImage({
   ...props
 }: PropertyImageProps) {
   const fallbackSrc = useMemo(() => createPlaceholder(fallbackLabel ?? alt), [alt, fallbackLabel]);
-  const safeSrc = src && src.trim().length > 0 ? src : fallbackSrc;
+  const safeSrc = useMemo(() => {
+    if (!src || src.trim().length === 0) return fallbackSrc;
+    // Ensure path starts with / for local images
+    if (!src.startsWith('/') && !src.startsWith('http') && !src.startsWith('data:')) {
+      return '/' + src;
+    }
+    return src;
+  }, [src, fallbackSrc]);
   const [currentSrc, setCurrentSrc] = useState(safeSrc);
 
   useEffect(() => {

@@ -30,13 +30,13 @@ model Account {
 // Table 2 — Properties (Main Table)
 // ============================================
 model Property {
-  id           String   @id @default(cuid())
+  pkey         Int      @id @default(autoincrement()) @map("pkey")
   title        String
-  slug         String   @unique
-  price        Float
-  location     String
-  propertyType String   @map("property_type")
-  status       String   @default("For Sale") // For Sale, For Rent, Sold
+  slug         String   @unique @map("slug_key")
+  price        Float?
+  location     String?
+  propertyType String?  @map("property_type")
+  status       String   @default("active") // active, sold, pending
   bedrooms     Int?
   bathrooms    Int?
   parking      Int?
@@ -49,10 +49,19 @@ model Property {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   // Relations
-  company      Company?           @relation(fields: [companyId], references: [id])
-  creator      Account?           @relation(fields: [createdBy], references: [id])
+  company      Company?           @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  creator      Account?           @relation(fields: [createdBy], references: [id], onDelete: SetNull)
   images       PropertyImage[]
   inquiries    PropertyInquiry[]
+
+  // Performance indexes
+  @@index([status, featured, createdAt])
+  @@index([propertyType, status])
+  @@index([location])
+  @@index([price])
+  @@index([companyId])
+  @@index([createdBy])
+  @@index([createdAt])
 
   @@map("properties")
 }
@@ -62,14 +71,14 @@ model Property {
 // ============================================
 model PropertyImage {
   id         String   @id @default(cuid())
-  propertyId String   @map("property_id")
+  propertyId Int      @map("property_id")
   imageUrl   String   @map("image_url")
   isPrimary  Boolean  @default(false) @map("is_primary")
   sortOrder  Int      @default(0) @map("sort_order")
   createdAt  DateTime @default(now()) @map("created_at")
 
   // Relations
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [pkey], onDelete: Cascade)
 
   @@map("property_images")
 }
@@ -111,7 +120,7 @@ model Testimonial {
 // ============================================
 model PropertyInquiry {
   id         String   @id @default(cuid())
-  propertyId String?  @map("property_id")
+  propertyId Int?     @map("property_id")
   name       String
   email      String
   phone      String?
@@ -119,7 +128,7 @@ model PropertyInquiry {
   createdAt  DateTime @default(now()) @map("created_at")
 
   // Relations
-  property   Property? @relation(fields: [propertyId], references: [id])
+  property   Property? @relation(fields: [propertyId], references: [pkey])
 
   @@map("property_inquiries")
 }

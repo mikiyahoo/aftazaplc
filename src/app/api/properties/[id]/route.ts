@@ -11,7 +11,7 @@ export async function GET(
     const { id } = params;
 
     const property = await prisma.property.findUnique({
-      where: { id },
+      where: { pkey: Number(id) },
       include: {
         company: true,
         images: {
@@ -67,7 +67,7 @@ export async function PUT(
 
     // Check if property exists
     const existingProperty = await prisma.property.findUnique({
-      where: { id },
+      where: { pkey: Number(id) },
     });
 
     if (!existingProperty) {
@@ -89,7 +89,7 @@ export async function PUT(
     }
 
     const property = await prisma.property.update({
-      where: { id },
+      where: { pkey: Number(id) },
       data: {
         ...(title && { title }),
         ...(slug && { slug }),
@@ -139,7 +139,7 @@ export async function DELETE(
 
     // Check if property exists
     const existingProperty = await prisma.property.findUnique({
-      where: { id },
+      where: { pkey: Number(id) },
     });
 
     if (!existingProperty) {
@@ -148,7 +148,7 @@ export async function DELETE(
 
     // Delete property (images will be cascade deleted)
     await prisma.property.delete({
-      where: { id },
+      where: { pkey: Number(id) },
     });
 
     return NextResponse.json({ message: 'Property deleted successfully' });

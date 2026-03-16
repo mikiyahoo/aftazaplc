@@ -72,13 +72,13 @@ function normalizeProperty(row: Record<string, unknown>): PropertyRecord {
   const areaSqm = Number(row.area_sqm ?? row.areaSqm ?? row.area ?? 0);
 
   return {
-    id: String(row.id ?? row.slug ?? crypto.randomUUID()),
+    pkey: Number(row.id ?? row.slug ?? crypto.randomUUID()),
     slug: String(row.slug ?? ""),
     title: String(row.title ?? row.name ?? "Untitled Property"),
     location,
     neighborhood,
     city,
-    type: normalizeType(row.type),
+    propertyType: normalizeType(row.type),
     category:
       row.category === "Residential" || row.category === "Commercial" || row.category === "Apartments"
         ? row.category
@@ -102,7 +102,7 @@ function normalizeProperty(row: Record<string, unknown>): PropertyRecord {
           .map((item) => String(item))
           .filter(Boolean) as PropertyRecord["viewTags"]
       : [],
-     status: row.status === "For Sale" || row.status === "For Rent" ? "active" : "inactive",
+     status: row.status === "For Sale" || row.status === "For Rent" ? "active" : "pending",
     trustBadges: Array.isArray(row.trust_badges)
       ? row.trust_badges.map((item) => String(item)) as PropertyRecord["trustBadges"]
       : ["Verified Listing"],
@@ -116,15 +116,15 @@ function normalizeDbProperty(dbProperty: any): PropertyRecord {
   const gallery = dbProperty.images?.map((img: any) => img.imageUrl) || [];
 
   return {
-    id: dbProperty.id,
+    pkey: Number(dbProperty.pkey),
     slug: dbProperty.slug,
     title: dbProperty.title,
-    location: dbProperty.location,
-    neighborhood: dbProperty.location.split(',')[0]?.trim() || 'Addis Ababa',
+    location: dbProperty.location || '',
+    neighborhood: dbProperty.location?.split(',')[0]?.trim() || 'Addis Ababa',
     city: 'Addis Ababa',
-    type: dbProperty.propertyType as PropertyType,
+    propertyType: (dbProperty.propertyType as PropertyType) || 'Apartment',
     category: 'Residential',
-    price: dbProperty.price,
+    price: dbProperty.price || 0,
     bedrooms: dbProperty.bedrooms || 0,
     bathrooms: dbProperty.bathrooms || 0,
     parking: dbProperty.parking || 0,
@@ -136,7 +136,7 @@ function normalizeDbProperty(dbProperty: any): PropertyRecord {
     heroImage: primaryImage?.imageUrl || '/property/property-hero.jpg',
     gallery: gallery.length > 0 ? gallery : ['/property/property-hero.jpg'],
     viewTags: [],
-     status: dbProperty.status === 'For Sale' || dbProperty.status === 'For Rent' ? 'active' : 'inactive',
+    status: dbProperty.status === 'active' ? 'active' : dbProperty.status === 'sold' ? 'sold' : 'pending',
     trustBadges: dbProperty.featured ? ['Featured'] : ['Verified Listing'],
     createdAt: dbProperty.createdAt.toISOString(),
     // Company information
@@ -160,7 +160,7 @@ function matchesFilters(property: PropertyRecord, filters: PropertyFilters) {
     return false;
   }
 
-  if (resolvedType && property.type !== resolvedType) {
+  if (resolvedType && property.propertyType !== resolvedType) {
     return false;
   }
 
@@ -360,7 +360,7 @@ export async function getPropertyBySlug(slug: string) {
 export async function getRelatedProperties(property: PropertyRecord, limit = 3) {
   const related = await getProperties(
     {
-      type: property.type,
+      type: property.propertyType,
       status: "active",
     },
     limit + 1
