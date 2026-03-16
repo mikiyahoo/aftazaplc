@@ -1,0 +1,52 @@
+[33mecb06b4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mback-to-yesterday[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to origin/main
+[33mecb06b4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mback-to-yesterday[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: checkout: moving from back-to-yesterday to back-to-yesterday
+[33mecb06b4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mback-to-yesterday[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{2}: checkout: moving from back-to-yesterday to back-to-yesterday
+[33mecb06b4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mback-to-yesterday[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{3}: checkout: moving from back-to-yesterday to back-to-yesterday
+[33mecb06b4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mback-to-yesterday[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{4}: commit: delpoy test
+[33ma1f3564[m HEAD@{5}: commit: yesterday
+[33m3a1e913[m HEAD@{6}: checkout: moving from main to back-to-yesterday
+[33m5734ab0[m[33m ([m[1;32mmain[m[33m)[m HEAD@{7}: reset: moving to 5734ab0cc26e44721519881336d9781e0876b99c
+[33m7d0e398[m[33m ([m[1;32mbackup-before-reset[m[33m)[m HEAD@{8}: checkout: moving from backup-before-reset to main
+[33m7d0e398[m[33m ([m[1;32mbackup-before-reset[m[33m)[m HEAD@{9}: checkout: moving from main to backup-before-reset
+[33m7d0e398[m[33m ([m[1;32mbackup-before-reset[m[33m)[m HEAD@{10}: commit: Add cPanel deployment configuration
+[33m67b3a18[m HEAD@{11}: commit: build successfully
+[33ma703e72[m HEAD@{12}: Branch: renamed refs/heads/main to refs/heads/main
+[33ma703e72[m HEAD@{14}: Branch: renamed refs/heads/main to refs/heads/main
+[33ma703e72[m HEAD@{16}: commit: database working
+[33maeebaba[m HEAD@{17}: commit: companies update
+[33m3a1e913[m HEAD@{18}: commit: commit
+[33m53aa321[m HEAD@{19}: commit: commmit
+[33m8695d9a[m HEAD@{20}: commit: commit
+[33m27ffb4e[m HEAD@{21}: commit: commit
+[33m5734ab0[m[33m ([m[1;32mmain[m[33m)[m HEAD@{22}: commit: password issue
+[33m1a2a2f2[m HEAD@{23}: commit: admin login issue
+[33m0557ceb[m HEAD@{24}: commit: admin login issue
+[33m6a8623d[m HEAD@{25}: commit: database update
+[33m7661870[m HEAD@{26}: reset: moving to origin/main
+[33mfbc9ec3[m[33m ([m[1;32mbackup/pre-push-sanitization[m[33m)[m HEAD@{27}: commit: database update
+[33m9f2aa1a[m HEAD@{28}: commit: database update
+[33m01febac[m HEAD@{29}: commit: database update
+[33m7661870[m HEAD@{30}: commit: property feature on main
+[33mf6d8752[m HEAD@{31}: commit: update 2
+[33m854726d[m HEAD@{32}: checkout: moving from main2 to main
+[33mafe2702[m[33m ([m[1;31morigin/main2[m[33m, [m[1;32mmain2[m[33m)[m HEAD@{33}: commit: Property features change
+[33m854726d[m HEAD@{34}: checkout: moving from main to main2
+[33m854726d[m HEAD@{35}: commit: Applied a fix auth
+[33md742115[m HEAD@{36}: commit: prisma generate && next build
+[33m92e83d9[m HEAD@{37}: commit: env file updates
+[33mc0c1abe[m HEAD@{38}: commit: blog feature
+[33m2d5666e[m HEAD@{39}: commit: Commit
+[33m13f4312[m HEAD@{40}: commit: Commit
+[33md66a833[m HEAD@{41}: commit: Commit
+[33m755ae1d[m HEAD@{42}: commit: Commit
+[33m65f257c[m HEAD@{43}: commit: commit
+[33m7186657[m HEAD@{44}: commit: commit
+[33m2a8e0b6[m HEAD@{45}: commit: Commit
+[33mf1f5880[m HEAD@{46}: commit: Update titles to consistent case and adjust sizes
+[33m498f037[m HEAD@{47}: commit: Commit
+[33m8a663e5[m HEAD@{48}: commit: titles case & size
+[33mbf1bb33[m HEAD@{49}: commit: superbase removed
+[33ma76695a[m HEAD@{50}: commit: Fix lucide icon case error
+[33m488607c[m HEAD@{51}: Branch: renamed refs/heads/Main to refs/heads/main
+[33m488607c[m HEAD@{53}: Branch: renamed refs/heads/master to refs/heads/Main
+[33m488607c[m HEAD@{55}: commit (initial): Intial Clean Commit
