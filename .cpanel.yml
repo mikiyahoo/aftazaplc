@@ -5,7 +5,7 @@ deployment:
     - /bin/rm -rf $DEPLOYPATH/*
     - /bin/cp -R * $DEPLOYPATH/
     - cd $DEPLOYPATH
-    - /bin/cp .env.example .env 2>/dev/null || true
-    - npm install --production
+    - npm install
+    - npx prisma generate
     - export NODE_OPTIONS="--max-old-space-size=1024"
     - npm run build

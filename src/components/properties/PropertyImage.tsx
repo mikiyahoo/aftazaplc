@@ -43,13 +43,13 @@ export default function PropertyImage({
 }: PropertyImageProps) {
   const fallbackSrc = useMemo(() => createPlaceholder(fallbackLabel ?? alt), [alt, fallbackLabel]);
   const safeSrc = useMemo(() => {
-    if (!src || src.trim().length === 0) return fallbackSrc;
+    if (!src || src.trim().length === 0) return '/property/luxury-house-image.jpg';
     // Ensure path starts with / for local images
     if (!src.startsWith('/') && !src.startsWith('http') && !src.startsWith('data:')) {
       return '/' + src;
     }
     return src;
-  }, [src, fallbackSrc]);
+  }, [src]);
   const [currentSrc, setCurrentSrc] = useState(safeSrc);
 
   useEffect(() => {

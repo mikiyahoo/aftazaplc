@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import type { PropertyFilters } from "@/types/property";
 import { getProperties } from "@/lib/supabase/properties";
 
+// Force dynamic rendering - this route accesses request.url
+export const dynamic = 'force-dynamic';
+
 function parseNumber(value: string | null) {
   if (!value) return undefined;
   const parsed = Number(value);

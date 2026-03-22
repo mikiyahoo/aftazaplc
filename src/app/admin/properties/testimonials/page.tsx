@@ -198,7 +198,7 @@ export default function TestimonialsPage() {
                   <tr key={testimonial.id} className="hover:bg-slate-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 overflow-hidden rounded-full bg-slate-100">
+                        <div className="relative h-10 w-10 overflow-hidden rounded-full bg-slate-100">
                           {testimonial.image ? (
                             <PropertyImage
                               src={testimonial.image}

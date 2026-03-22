@@ -224,9 +224,9 @@ export default function ManagePropertiesPage() {
                 filteredProperties.map((property) => (
                   <tr key={property.pkey} className="hover:bg-slate-50">
                     <td className="px-6 py-4">
-                      <div className="h-16 w-24 overflow-hidden rounded-md bg-slate-100">
+                      <div className="relative h-16 w-24 overflow-hidden rounded-md bg-slate-100">
                         <PropertyImage
-                          src={property.primaryImage || "/property/property-1.jpg"}
+                          src={property.primaryImage || "/property/luxury-house-image.jpg"}
                           alt={property.title}
                           fallbackLabel={property.title}
                           fill

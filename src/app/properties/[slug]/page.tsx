@@ -8,6 +8,7 @@ import PropertyInquiryForm from "@/components/properties/PropertyInquiryForm";
 import { SITE } from "@/lib/constants";
 import { formatBirr } from "@/lib/properties/config";
 import { getPropertyBySlug, getRelatedProperties } from "@/lib/supabase/properties";
+import { propertySeed } from "@/data/propertySeed";
 import type { PropertyRecord } from "@/types/property";
 
 interface PropertyDetailPageProps {
@@ -16,13 +17,18 @@ interface PropertyDetailPageProps {
   };
 }
 
-// Generate static params for all property slugs
+// Make this page fully dynamic - it fetches data at request time
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
+// Generate static params for build time using seed data
 export async function generateStaticParams() {
   try {
-    // We'll fetch all property slugs from the database
-    // For now, we'll return an empty array and rely on fallback or ISR
-    // In a production app, you would fetch all slugs here
-    return [];
+    // Use seed data for build time - ensures successful build
+    // Dynamic routes will be generated on-demand at runtime
+    return propertySeed.map((property) => ({
+      slug: property.slug,
+    }));
   } catch (error) {
     console.error("Failed to generate static params:", error);
     return [];

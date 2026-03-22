@@ -2,8 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Button from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
+import {
+  Pencil,
+  Trash2,
+  Plus,
+  Search,
+  Loader2,
+  Building2,
+  Phone,
+  Mail,
+} from "lucide-react";
 
 interface Company {
   id: string;
@@ -42,33 +50,31 @@ export default function CompaniesPage() {
     fetchCompanies();
   }, []);
 
-   const fetchCompanies = async () => {
-     setLoading(true);
-     try {
-       const response = await fetch("/api/companies", {
-         credentials: "include", // Important for sending cookies
-       });
-       
-       if (!response.ok) {
-         if (response.status === 401 || response.status === 403) {
-           // Redirect to login or show unauthorized message
-           window.location.href = "/admin/login";
-           return;
-         }
-         throw new Error("Failed to fetch companies");
-       }
-       
-       const data = await response.json();
-       setCompanies(data);
-       setFilteredCompanies(data);
-     } catch (error) {
-       console.error("Error fetching companies:", error);
-       // toast.error("Failed to load companies"); // Commented out since sonner might not be available
-       alert("Failed to load companies");
-     } finally {
-       setLoading(false);
-     }
-   };
+  const fetchCompanies = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/companies", {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          window.location.href = "/admin/login";
+          return;
+        }
+        throw new Error("Failed to fetch companies");
+      }
+
+      const data = await response.json();
+      setCompanies(data);
+      setFilteredCompanies(data);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      alert("Failed to load companies");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter companies based on search term
   useEffect(() => {
@@ -76,112 +82,101 @@ export default function CompaniesPage() {
       setFilteredCompanies(companies);
       return;
     }
-    
-    const filtered = companies.filter(company =>
+
+    const filtered = companies.filter((company) =>
       company.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredCompanies(filtered);
   }, [companies, searchTerm]);
 
-   // Handle form submission
-   const handleSubmit = async (e: React.FormEvent) => {
-     e.preventDefault();
-     
-     try {
-       let response;
-       if (editingId) {
-         // Update existing company
-         response = await fetch(`/api/companies/${editingId}`, {
-           method: "PUT",
-           headers: {
-             "Content-Type": "application/json",
-           },
-           credentials: "include",
-           body: JSON.stringify({
-             name: formData.name,
-             phone: formData.phone || null,
-             email: formData.email || null,
-           }),
-         });
-       } else {
-         // Create new company
-         response = await fetch("/api/companies", {
-           method: "POST",
-           headers: {
-             "Content-Type": "application/json",
-           },
-           credentials: "include",
-           body: JSON.stringify({
-             name: formData.name,
-             phone: formData.phone || null,
-             email: formData.email || null,
-           }),
-         });
-       }
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-       if (!response.ok) {
-         if (response.status === 401 || response.status === 403) {
-           // Redirect to login or show unauthorized message
-           window.location.href = "/admin/login";
-           return;
-         }
-         const errorData = await response.json();
-         throw new Error(errorData.error || "Failed to save company");
-       }
+    try {
+      let response;
+      if (editingId) {
+        response = await fetch(`/api/companies/${editingId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: formData.name,
+            phone: formData.phone || null,
+            email: formData.email || null,
+          }),
+        });
+      } else {
+        response = await fetch("/api/companies", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: formData.name,
+            phone: formData.phone || null,
+            email: formData.email || null,
+          }),
+        });
+      }
 
-       // Reset form and close dialog
-       setFormData({ name: "", phone: "", email: "" });
-       setEditingId(null);
-       setIsFormOpen(false);
-       
-       // Refresh companies list
-       await fetchCompanies();
-       
-       // toast.success(editingId ? "Company updated successfully" : "Company created successfully"); // Commented out since sonner might not be available
-       alert(editingId ? "Company updated successfully" : "Company created successfully");
-     } catch (error) {
-       console.error("Error saving company:", error);
-       // toast.error(error.message || "Failed to save company"); // Commented out since sonner might not be available
-       alert((error as Error).message || "Failed to save company");
-     }
-   };
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          window.location.href = "/admin/login";
+          return;
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save company");
+      }
 
-   // Handle delete confirmation
-   const handleDelete = async () => {
-     if (!deleteId) return;
-     
-     setIsDeleting(true);
-     try {
-       const response = await fetch(`/api/companies/${deleteId}`, {
-         method: "DELETE",
-         credentials: "include",
-       });
- 
-       if (!response.ok) {
-         if (response.status === 401 || response.status === 403) {
-           // Redirect to login or show unauthorized message
-           window.location.href = "/admin/login";
-           return;
-         }
-         const errorData = await response.json();
-         throw new Error(errorData.error || "Failed to delete company");
-       }
- 
-       setDeleteId(null);
-       setIsDeleting(false);
-       
-       // Refresh companies list
-       await fetchCompanies();
-       
-       // toast.success("Company deleted successfully"); // Commented out since sonner might not be available
-       alert("Company deleted successfully");
-     } catch (error) {
-       console.error("Error deleting company:", error);
-       setIsDeleting(false);
-       // toast.error(error.message || "Failed to delete company"); // Commented out since sonner might not be available
-       alert((error as Error).message || "Failed to delete company");
-     }
-   };
+      setFormData({ name: "", phone: "", email: "" });
+      setEditingId(null);
+      setIsFormOpen(false);
+
+      await fetchCompanies();
+
+      alert(editingId ? "Company updated successfully" : "Company created successfully");
+    } catch (error) {
+      console.error("Error saving company:", error);
+      alert((error as Error).message || "Failed to save company");
+    }
+  };
+
+  // Handle delete confirmation
+  const handleDelete = async () => {
+    if (!deleteId) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/companies/${deleteId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          window.location.href = "/admin/login";
+          return;
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete company");
+      }
+
+      setDeleteId(null);
+      setIsDeleting(false);
+
+      await fetchCompanies();
+
+      alert("Company deleted successfully");
+    } catch (error) {
+      console.error("Error deleting company:", error);
+      setIsDeleting(false);
+      alert((error as Error).message || "Failed to delete company");
+    }
+  };
 
   // Handle form open for new company
   const handleAddCompany = () => {
@@ -208,248 +203,213 @@ export default function CompaniesPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Companies Management</h1>
-          <Button variant="gold" onClick={handleAddCompany}>
-            <span className="mr-2">+</span> Add Company
-          </Button>
-        </div>
-        <div className="animate-pulse h-96">
-          Loading companies...
-        </div>
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-brand-gold" />
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Companies Management</h1>
-        <Button variant="gold" onClick={handleAddCompany}>
-          <span className="mr-2">+</span> Add Company
-        </Button>
-      </div>
-      
-      {/* Search Filter */}
-      <div className="mb-6">
-        <input
-          placeholder="Search companies by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus-ring-[var(--property-action-blue)]"
-        />
-      </div>
-      
-      {/* Companies Table */}
-      <div className="space-y-4">
-        {filteredCompanies.length === 0 ? (
-          <p className="text-center py-8 text-slate-500">
-            No companies found.{" "}
-            {searchTerm ? (
-              <>
-                Try removing your search filter to see all companies.
-              </>
-            ) : (
-              "Add your first company using the button above."
-            )}
+    <div className="space-y-6 p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Companies</h1>
+          <p className="mt-1 text-slate-500">
+            Manage real estate companies that list properties.
           </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+        </div>
+        <button
+          onClick={handleAddCompany}
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-white hover:bg-brand-gold/90"
+        >
+          <Plus size={18} />
+          Add Company
+        </button>
+      </div>
+
+      {/* Search Filter */}
+      <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search companies by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-md border border-slate-300 py-2 pl-10 pr-4 text-sm focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
+          />
+        </div>
+      </div>
+
+      {/* Companies Table */}
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-slate-600">
+              <tr>
+                <th className="px-6 py-3 font-semibold">Company Name</th>
+                <th className="px-6 py-3 font-semibold">Phone</th>
+                <th className="px-6 py-3 font-semibold">Email</th>
+                <th className="px-6 py-3 font-semibold">Properties</th>
+                <th className="px-6 py-3 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filteredCompanies.length === 0 ? (
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Phone
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
-                    # Properties
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                    Actions
-                  </th>
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                    {searchTerm
+                      ? "No companies found matching your search."
+                      : "No companies found. Add your first company."}
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCompanies.map((company) => (
-                  <tr key={company.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 w-48">
-                      {company.name}
+              ) : (
+                filteredCompanies.map((company) => (
+                  <tr key={company.id} className="hover:bg-slate-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
+                          <Building2 size={20} className="text-slate-500" />
+                        </div>
+                        <div className="font-medium text-slate-900">{company.name}</div>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {company.phone || "-"}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Phone size={14} />
+                        {company.phone || "-"}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {company.email || "-"}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Mail size={14} />
+                        {company.email || "-"}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-20">
-                      {company._count.properties}
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">
+                        {company._count.properties} properties
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium w-24 flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditCompany(company)}
-                      >
-                        <span className="mr-1">✎</span> Edit
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteClick(company.id)}
-                      >
-                        <span className="mr-1">🗑️</span> Delete
-                      </Button>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleEditCompany(company)}
+                          className="rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-brand-gold"
+                          title="Edit"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(company.id)}
+                          className="rounded-md p-2 text-slate-600 hover:bg-red-50 hover:text-red-600"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-      
-      {/* Add/Edit Company Form */}
+
+      {/* Add/Edit Company Modal */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="relative bg-white rounded-lg shadow">
-              {/* Modal Header */}
-              <div className="flex items-start justify-between p-4 border-b rounded-t">
-                <h3 className="text-xl font-medium text-gray-900">
-                  {editingId ? "Edit Company" : "Add Company"}
-                </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold text-slate-900">
+              {editingId ? "Edit Company" : "Add Company"}
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Company Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter company name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  placeholder="Enter phone number"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  placeholder="Enter email address"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
-                  className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200"
                   onClick={() => setIsFormOpen(false)}
+                  className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                 >
-                  <span className="sr-only">Close</span>
-                  <span className="h-5 w-5">×</span>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-md bg-brand-gold px-4 py-2 text-sm font-semibold text-white hover:bg-brand-gold/90"
+                >
+                  {editingId ? "Update Company" : "Add Company"}
                 </button>
               </div>
-              
-              {/* Modal Body */}
-              <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                <div>
-                  <label htmlFor="company-name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Name
-                  </label>
-                  <input
-                    id="company-name"
-                    type="text"
-                    placeholder="Enter company name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus-ring-[var(--property-action-blue)]"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="company-phone" className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number
-                  </label>
-                  <input
-                    id="company-phone"
-                    type="tel"
-                    placeholder="Enter phone number"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus-ring-[var(--property-action-blue)]"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="company-email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    id="company-email"
-                    type="email"
-                    placeholder="Enter email address"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus-ring-[var(--property-action-blue)]"
-                  />
-                </div>
-                
-                <div className="flex items-center justify-end space-x-3 pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsFormOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="gold"
-                    onClick={handleSubmit}
-                  >
-                    {editingId ? "Update Company" : "Add Company"}
-                  </Button>
-                </div>
-              </form>
-            </div>
+            </form>
           </div>
         </div>
       )}
-      
+
       {/* Delete Confirmation Modal */}
       {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="relative w-full max-w-md">
-            <div className="relative bg-white rounded-lg shadow">
-              {/* Modal Header */}
-              <div className="flex items-start justify-between p-4 border-b rounded-t">
-                <h3 className="text-xl font-medium text-gray-900">
-                  Confirm Deletion
-                </h3>
-                <button
-                  type="button"
-                  className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200"
-                  onClick={() => setDeleteId(null)}
-                >
-                  <span className="sr-only">Close</span>
-                  <span className="h-5 w-5">×</span>
-                </button>
-              </div>
-              
-              {/* Modal Body */}
-              <div className="p-6 space-y-4">
-                <p className="text-slate-600">
-                  This will permanently remove the company from the system.
-                </p>
-                {deleteId && (
-                  <p className="font-medium">
-                    Company ID: {deleteId}
-                  </p>
-                )}
-              </div>
-              
-              {/* Modal Footer */}
-              <div className="flex items-center justify-end space-x-3 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setDeleteId(null)}
-                  disabled={isDeleting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="loading-indicator"
-                >
-                  {isDeleting ? "Deleting..." : "Delete Company"}
-                </Button>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold text-slate-900">
+              Confirm Deletion
+            </h2>
+            <p className="mb-4 text-slate-600">
+              This will permanently remove the company from the system. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteId(null)}
+                disabled={isDeleting}
+                className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                {isDeleting ? "Deleting..." : "Delete Company"}
+              </button>
             </div>
           </div>
         </div>
