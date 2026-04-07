@@ -1,103 +1,174 @@
 import Link from "next/link";
-import { 
-  ShieldCheck, 
-  LayoutDashboard, 
-  FilePlus, 
-  Building2,
-  Users,
-  MessageSquare,
-  Star,
-  Plus,
-  List,
-  Building
-} from "lucide-react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { LogOut, Home, Building2, MessageSquare, Star, Building, User } from "lucide-react";
+import { logout } from "./actions/logout";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex min-h-screen bg-slate-50">
-      <aside className="w-64 bg-slate-950 text-white p-6 flex flex-col fixed h-full">
-        <div className="flex items-center gap-3 mb-10">
-          <ShieldCheck className="text-[#c8a34d]" size={24} />
-          <span className="font-display font-black uppercase tracking-tighter text-xl">AFTAZA_HQ</span>
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
+  
+  // If not authenticated, show layout with sidebar but without user info
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex">
+          {/* Enhanced Sidebar Navigation */}
+          <aside className="w-64 bg-[#0f172a] border-r border-[#c8a34d]/20 shadow-lg">
+            <div className="p-6">
+              {/* Brand Header */}
+              <div className="flex items-center justify-center mb-8">
+                <div className="w-12 h-12 bg-[#c8a34d] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(200,163,77,0.3)]">
+                  <span className="text-white font-bold text-lg">A</span>
+                </div>
+              </div>
+              
+              {/* Guest Info */}
+              <div className="mb-8 p-4 bg-white/5 rounded-lg border border-[#c8a34d]/20">
+                <div className="flex items-center justify-center mb-2">
+                  <User className="w-4 h-4 text-[#c8a34d] mr-2" />
+                  <span className="text-white font-semibold text-sm">Guest</span>
+                </div>
+                <p className="text-xs text-gray-400 text-center">Please log in to access admin features</p>
+              </div>
+              
+              {/* Navigation */}
+              <nav className="space-y-2">
+                <Link 
+                  href="/admin/login" 
+                  className="flex items-center px-3 py-3 text-gray-300 rounded-lg hover:bg-[#c8a34d]/20 hover:text-white transition-all duration-300 border-l-2 border-transparent hover:border-[#c8a34d]"
+                >
+                  <Home className="w-5 h-5 text-[#c8a34d] mr-3 flex-shrink-0" />
+                  <span className="font-medium">Login</span>
+                </Link>
+                
+                <Link 
+                  href="/admin/register" 
+                  className="flex items-center px-3 py-3 text-gray-300 rounded-lg hover:bg-[#c8a34d]/20 hover:text-white transition-all duration-300 border-l-2 border-transparent hover:border-[#c8a34d]"
+                >
+                  <Building2 className="w-5 h-5 text-[#c8a34d] mr-3 flex-shrink-0" />
+                  <span className="font-medium">Register</span>
+                </Link>
+                
+                <Link 
+                  href="/admin/forgot-password" 
+                  className="flex items-center px-3 py-3 text-gray-300 rounded-lg hover:bg-[#c8a34d]/20 hover:text-white transition-all duration-300 border-l-2 border-transparent hover:border-[#c8a34d]"
+                >
+                  <MessageSquare className="w-5 h-5 text-[#c8a34d] mr-3 flex-shrink-0" />
+                  <span className="font-medium">Forgot Password</span>
+                </Link>
+              </nav>
+
+              {/* Guest Actions */}
+              <div className="mt-8 pt-6 border-t border-[#c8a34d]/20">
+                <div className="text-xs text-gray-400 text-center">
+                  Admin access required for full features
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
+          </main>
         </div>
+      </div>
+    );
+  }
 
-        <nav className="space-y-1 flex-1">
-          <Link
-            href="/admin"
-            className="flex items-center gap-3 p-3 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded"
-          >
-            <LayoutDashboard size={16} /> Dashboard
-          </Link>
-          
-          <div className="pt-4 pb-2">
-            <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500 px-3">Properties</span>
+  // Authenticated users get layout with enhanced sidebar
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex">
+        {/* Enhanced Sidebar Navigation */}
+        <aside className="w-64 bg-[#0f172a] border-r border-[#c8a34d]/20 shadow-lg">
+          <div className="p-6">
+            {/* Brand Header */}
+            <div className="flex items-center justify-center mb-8">
+              <div className="w-12 h-12 bg-[#c8a34d] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(200,163,77,0.3)]">
+                <span className="text-white font-bold text-lg">A</span>
+              </div>
+            </div>
+            
+            {/* User Info */}
+            <div className="mb-8 p-4 bg-white/5 rounded-lg border border-[#c8a34d]/20">
+              <div className="flex items-center justify-center mb-2">
+                <User className="w-4 h-4 text-[#c8a34d] mr-2" />
+                <span className="text-white font-semibold text-sm">Admin</span>
+              </div>
+              <p className="text-xs text-gray-400 text-center truncate">{session.user?.email}</p>
+            </div>
+            
+            {/* Navigation */}
+            <nav className="space-y-2">
+              <Link 
+                href="/admin" 
+                className="flex items-center px-3 py-3 text-gray-300 rounded-lg hover:bg-[#c8a34d]/20 hover:text-white transition-all duration-300 border-l-2 border-transparent hover:border-[#c8a34d]"
+              >
+                <Home className="w-5 h-5 text-[#c8a34d] mr-3 flex-shrink-0" />
+                <span className="font-medium">Dashboard</span>
+              </Link>
+              
+              <Link 
+                href="/admin/properties/manage-properties" 
+                className="flex items-center px-3 py-3 text-gray-300 rounded-lg hover:bg-[#c8a34d]/20 hover:text-white transition-all duration-300 border-l-2 border-transparent hover:border-[#c8a34d]"
+              >
+                <Building2 className="w-5 h-5 text-[#c8a34d] mr-3 flex-shrink-0" />
+                <span className="font-medium">Properties</span>
+              </Link>
+              
+              <Link 
+                href="/admin/properties/inquiries" 
+                className="flex items-center px-3 py-3 text-gray-300 rounded-lg hover:bg-[#c8a34d]/20 hover:text-white transition-all duration-300 border-l-2 border-transparent hover:border-[#c8a34d]"
+              >
+                <MessageSquare className="w-5 h-5 text-[#c8a34d] mr-3 flex-shrink-0" />
+                <span className="font-medium">Inquiries</span>
+              </Link>
+              
+              <Link 
+                href="/admin/properties/testimonials" 
+                className="flex items-center px-3 py-3 text-gray-300 rounded-lg hover:bg-[#c8a34d]/20 hover:text-white transition-all duration-300 border-l-2 border-transparent hover:border-[#c8a34d]"
+              >
+                <Star className="w-5 h-5 text-[#c8a34d] mr-3 flex-shrink-0" />
+                <span className="font-medium">Testimonials</span>
+              </Link>
+              
+              <Link 
+                href="/admin/properties/companies" 
+                className="flex items-center px-3 py-3 text-gray-300 rounded-lg hover:bg-[#c8a34d]/20 hover:text-white transition-all duration-300 border-l-2 border-transparent hover:border-[#c8a34d]"
+              >
+                <Building className="w-5 h-5 text-[#c8a34d] mr-3 flex-shrink-0" />
+                <span className="font-medium">Companies</span>
+              </Link>
+            </nav>
+
+            {/* Logout Section */}
+            <div className="mt-8 pt-6 border-t border-[#c8a34d]/20">
+              <form 
+                action={logout}
+                className="w-full"
+              >
+                <button
+                  type="submit"
+                  className="w-full flex items-center px-3 py-3 text-gray-300 rounded-lg hover:bg-red-500/20 hover:text-red-400 transition-all duration-300 border-l-2 border-transparent hover:border-red-400"
+                >
+                  <LogOut className="w-5 h-5 text-red-400 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Logout</span>
+                </button>
+              </form>
+            </div>
           </div>
-          
-          <Link
-            href="/admin/properties"
-            className="flex items-center gap-3 p-3 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded"
-          >
-            <Building2 size={16} /> Property Dashboard
-          </Link>
-          
-          <Link
-            href="/admin/properties/add-property"
-            className="flex items-center gap-3 pl-8 pr-3 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded"
-          >
-            <Plus size={14} /> Add Property
-          </Link>
-          
-          <Link
-            href="/admin/properties/manage-properties"
-            className="flex items-center gap-3 pl-8 pr-3 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded"
-          >
-            <List size={14} /> Manage Properties
-          </Link>
-          
-          <Link
-            href="/admin/properties/companies"
-            className="flex items-center gap-3 pl-8 pr-3 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded"
-          >
-            <Building size={14} /> Companies
-          </Link>
-          
-          <Link
-            href="/admin/properties/testimonials"
-            className="flex items-center gap-3 pl-8 pr-3 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded"
-          >
-            <Star size={14} /> Testimonials
-          </Link>
-          
-          <Link
-            href="/admin/properties/inquiries"
-            className="flex items-center gap-3 pl-8 pr-3 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded"
-          >
-            <MessageSquare size={14} /> Inquiries
-          </Link>
+        </aside>
 
-          <div className="pt-4 pb-2">
-            <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500 px-3">Content</span>
+        {/* Enhanced Main Content */}
+        <main className="flex-1 p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="max-w-7xl mx-auto">
+            {children}
           </div>
-          
-          <Link
-            href="/admin/new"
-            className="flex items-center gap-3 p-3 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded"
-          >
-            <FilePlus size={16} /> New Insight
-          </Link>
-          
-          <Link
-            href="/insights"
-            className="flex items-center gap-3 p-3 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded opacity-70"
-          >
-            <Users size={16} /> Public Insights
-          </Link>
-        </nav>
-      </aside>
-
-      <main className="flex-1 ml-64 p-8">
-        {children}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Sora } from "next/font/google";
 import "../styles/globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import FloatingContactStack from "@/components/contact/FloatingContactStack";
+import Providers from "./providers";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -34,10 +32,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={sora.variable}>
       <body className="font-sans antialiased">
-        <Header />
-        <main className="min-h-screen">{children}</main>
-        <FloatingContactStack />
-        <Footer />
+        <Providers>
+          <main className="min-h-screen">{children}</main>
+        </Providers>
       </body>
     </html>
   );

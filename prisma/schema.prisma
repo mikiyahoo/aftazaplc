@@ -13,15 +13,21 @@ datasource db {
 // Table 1 — Accounts (Admin Users)
 // ============================================
 model Account {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  role         String   @default("editor") // admin, editor
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                String   @id @default(cuid())
+  name              String
+  email             String   @unique
+  passwordHash      String   @map("password_hash")
+  role              String   @default("editor") // admin, editor
+  emailVerified     Boolean  @default(false) @map("email_verified")
+  verificationCode  String?  @map("verification_code")
+  verificationExpires DateTime? @map("verification_expires")
+  resetToken        String?  @map("reset_token")
+  resetTokenExpires DateTime? @map("reset_token_expires")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
-  properties   Property[]
+  properties        Property[]
+  logs              AdminLog[]
 
   @@map("accounts")
 }
@@ -131,6 +137,30 @@ model PropertyInquiry {
   property   Property? @relation(fields: [propertyId], references: [pkey])
 
   @@map("property_inquiries")
+}
+
+// ============================================
+// Table 7 — Admin Logs (Audit Trail)
+// ============================================
+model AdminLog {
+  id         String   @id @default(cuid())
+  adminId    String?  @map("admin_id")
+  action     String   // login, logout, register, verify, etc.
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  metadata   Json?    // Additional context (role, email, etc.)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  admin      Account? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+
+  // Performance indexes
+  @@index([adminId, createdAt])
+  @@index([action, createdAt])
+  @@index([ipAddress, createdAt])
+  @@index([createdAt])
+
+  @@map("admin_logs")
 }
 
 // ============================================

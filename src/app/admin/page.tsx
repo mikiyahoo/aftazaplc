@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requireAdminAuth } from "@/lib/auth";
 import {
   Building2,
   MessageSquare,
   Star,
   Building,
   ArrowRight,
+  Shield,
+  AlertCircle,
 } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -63,64 +67,72 @@ export default async function AdminDashboardPage() {
       stat: propertyCount,
       icon: Building2,
       href: "/admin/properties/manage-properties",
+      color: "from-[#c8a34d] to-[#dfc278]",
     },
     {
       name: "Total Inquiries",
       stat: inquiryCount,
       icon: MessageSquare,
       href: "/admin/properties/inquiries",
+      color: "from-[#8b5cf6] to-[#a78bfa]",
     },
     {
       name: "Total Testimonials",
       stat: testimonialCount,
       icon: Star,
       href: "/admin/properties/testimonials",
+      color: "from-[#f59e0b] to-[#fbbf24]",
     },
     {
       name: "Total Companies",
       stat: companyCount,
       icon: Building,
       href: "/admin/properties/companies",
+      color: "from-[#ef4444] to-[#f87171]",
     },
   ];
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+        <p className="text-gray-600">Welcome back! Here's what's happening with your properties today.</p>
+      </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((item) => (
           <div
             key={item.name}
-            className="bg-white overflow-hidden shadow rounded-lg"
+            className="bg-white overflow-hidden shadow-lg rounded-xl border border-[#c8a34d]/10 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
           >
-            <div className="p-5">
+            <div className="p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 bg-gradient-to-br from-[#c8a34d] to-[#dfc278] p-3 rounded-lg shadow-lg">
                   <item.icon
-                    className="h-6 w-6 text-gray-400"
+                    className="h-6 w-6 text-white"
                     aria-hidden="true"
                   />
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
+                    <dt className="text-sm font-medium text-gray-600 uppercase tracking-wide">
                       {item.name}
                     </dt>
-                    <dd className="text-3xl font-bold text-gray-900">
+                    <dd className="text-3xl font-bold text-gray-900 mt-1">
                       {item.stat}
                     </dd>
                   </dl>
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 px-5 py-3">
+            <div className="bg-gradient-to-r from-[#c8a34d]/5 to-transparent px-6 py-4 border-t border-[#c8a34d]/10">
               <div className="text-sm">
                 <Link
                   href={item.href}
-                  className="font-medium text-cyan-700 hover:text-cyan-900"
+                  className="font-semibold text-[#c8a34d] hover:text-[#dfc278] transition-colors flex items-center gap-2"
                 >
                   View all
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>

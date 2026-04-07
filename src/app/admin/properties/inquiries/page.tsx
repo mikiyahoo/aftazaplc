@@ -61,12 +61,15 @@ export default function InquiriesPage() {
     try {
       const res = await fetch(`/api/inquiries/${id}`, {
         method: "DELETE",
+        credentials: 'include',
       });
 
       if (res.ok) {
         setInquiries(inquiries.filter((i) => i.id !== id));
+        alert("Inquiry deleted successfully");
       } else {
-        alert("Failed to delete inquiry");
+        const error = await res.json();
+        alert(error.error || "Failed to delete inquiry");
       }
     } catch (error) {
       console.error("Failed to delete inquiry:", error);

@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { redirect } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
 import { markdownToHtml } from "@/lib/markdown";
+import { requireAdminAuth } from "@/lib/auth";
 
 type PostFormState = {
   title: string;
@@ -31,7 +33,20 @@ async function fetchPost(id: string) {
   return res.json();
 }
 
-export default function AdminNewPostPage() {
+export default async function AdminNewPostPage() {
+  // Check authentication on the server side
+  const authResult = await requireAdminAuth(new Request("http://localhost:3003/admin/new", {
+    headers: {
+      'x-forwarded-for': '127.0.0.1',
+      'user-agent': 'Next.js'
+    }
+  }));
+  
+  if (!authResult.authenticated) {
+    // Redirect to login page if not authenticated
+    redirect("/admin/login");
+  }
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");

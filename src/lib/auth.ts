@@ -23,15 +23,15 @@ export const authOptions: NextAuthOptions = {
           }
 
           const email = credentials.email.trim().toLowerCase();
-          const account = await prisma.user.findUnique({
+          const account = await prisma.account.findUnique({
             where: { email },
           });
 
-          if (!account || account.role !== "admin" || !account.password) {
+          if (!account || !account.emailVerified) {
             return null;
           }
 
-          const isValid = await compare(credentials.password, account.password);
+          const isValid = await compare(credentials.password, account.passwordHash);
           if (!isValid) {
             return null;
           }

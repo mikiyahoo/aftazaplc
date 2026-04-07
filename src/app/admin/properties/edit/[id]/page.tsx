@@ -310,9 +310,10 @@ export default function EditPropertyPage() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-8">
-        <button
+      <button
           onClick={() => router.back()}
           className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          aria-label="Go back"
         >
           <ArrowLeft size={20} className="text-slate-600" />
         </button>
@@ -392,16 +393,17 @@ export default function EditPropertyPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Property Type *
-                  </label>
-                  <select
-                    name="propertyType"
-                    value={formData.propertyType}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#c8a34d] focus:border-[#c8a34d] outline-none"
-                  >
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Property Type *
+                </label>
+                <select
+                  name="propertyType"
+                  value={formData.propertyType}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#c8a34d] focus:border-[#c8a34d] outline-none"
+                  aria-label="Property Type"
+                >
                     {PROPERTY_TYPES.map(type => (
                       <option key={type} value={type}>{type}</option>
                     ))}
@@ -417,6 +419,7 @@ export default function EditPropertyPage() {
                     value={formData.status}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#c8a34d] focus:border-[#c8a34d] outline-none"
+                    aria-label="Property Status"
                   >
                     {PROPERTY_STATUS.map(status => (
                       <option key={status} value={status}>{status}</option>
@@ -601,6 +604,7 @@ export default function EditPropertyPage() {
                   value={formData.companyId}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#c8a34d] focus:border-[#c8a34d] outline-none"
+                  aria-label="Company"
                 >
                   <option value="">No Company</option>
                   {companies.map(company => (
@@ -638,6 +642,7 @@ export default function EditPropertyPage() {
               type="button"
               onClick={() => router.back()}
               className="w-full mt-3 bg-slate-100 text-slate-700 py-3 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+              aria-label="Cancel and go back"
             >
               Cancel
             </button>

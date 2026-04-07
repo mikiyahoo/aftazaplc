@@ -1,28 +1,75 @@
-import "server-only";
+import { cookies } from "next/headers";
+import { PrismaClient } from "@prisma/client";
 
-import { getToken } from "next-auth/jwt";
-import { prisma } from "@/lib/prisma";
+const prisma = new PrismaClient();
 
-export async function getAdminAccountFromRequest(request: Request) {
-  const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
+/**
+ * Admin authentication utilities
+ * Provides session validation and admin role checking
+ */
 
-  if (!token?.sub) {
+export async function validateAdminSession() {
+  const cookieStore = cookies();
+  const sessionId = cookieStore.get("admin_session")?.value;
+
+  if (!sessionId) {
     return null;
   }
 
-  const account = await prisma.user.findUnique({
-    where: { id: token.sub },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-    },
-  });
+  try {
+    const account = await prisma.account.findUnique({
+      where: { id: sessionId },
+    });
 
-  if (!account || account.role !== "admin") {
+    if (!account || !account.emailVerified) {
+      return null;
+    }
+
+    return account;
+  } catch (error) {
+    console.error("Session validation error:", error);
     return null;
+  }
+}
+
+export async function requireAdminSession() {
+  const account = await validateAdminSession();
+  
+  if (!account) {
+    throw new Error("Unauthorized");
   }
 
   return account;
+}
+
+export function isAdmin(account: any) {
+  return account && account.role === 'admin';
+}
+
+export function isEditor(account: any) {
+  return account && (account.role === 'admin' || account.role === 'editor');
+}
+
+export async function getAdminAccountFromRequest(request: Request) {
+  const cookieStore = cookies();
+  const sessionId = cookieStore.get("admin_session")?.value;
+
+  if (!sessionId) {
+    return null;
+  }
+
+  try {
+    const account = await prisma.account.findUnique({
+      where: { id: sessionId },
+    });
+
+    if (!account || !account.emailVerified) {
+      return null;
+    }
+
+    return account;
+  } catch (error) {
+    console.error("Session validation error:", error);
+    return null;
+  }
 }
