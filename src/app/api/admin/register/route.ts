@@ -13,15 +13,13 @@
  * @access Public
  */
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import { emailService } from "@/lib/email-server";
 import { registrationRateLimit, checkEmailRateLimit } from "@/lib/rateLimit";
 import { validatePassword, logPasswordValidationAttempt } from "@/lib/passwordValidation";
 import { logRegistration, logRateLimitViolation } from "@/lib/auditLog";
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {

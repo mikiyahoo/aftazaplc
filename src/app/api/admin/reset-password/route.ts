@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { validatePassword } from "@/lib/passwordValidation";
 import { resetPasswordRateLimit } from "@/lib/rateLimit";
 import { logPasswordReset } from "@/lib/auditLog";
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {

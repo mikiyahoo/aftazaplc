@@ -3,15 +3,6 @@ import * as nodemailer from "nodemailer";
 // In Next.js API routes, environment variables are automatically available
 // No need to call config() as Next.js handles this automatically
 
-// Verify environment variables are loaded
-if (!process.env.SMTP_HOST || !process.env.SMTP_PASS || !process.env.SMTP_USER) {
-  console.error('❌ Missing required environment variables for email service');
-  console.error('SMTP_HOST:', process.env.SMTP_HOST);
-  console.error('SMTP_PASS:', process.env.SMTP_PASS);
-  console.error('SMTP_USER:', process.env.SMTP_USER);
-  console.error('Available env vars:', Object.keys(process.env).filter(key => key.includes('SMTP') || key.includes('EMAIL')));
-}
-
 export interface EmailOptions {
   to: string;
   subject: string;
@@ -20,16 +11,17 @@ export interface EmailOptions {
 }
 
 export class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter | null = null;
 
-  constructor() {
-    // Debug: Log the actual values being used
-    console.log('📧 EmailService constructor called');
-    console.log('SMTP_HOST:', process.env.SMTP_HOST);
-    console.log('SMTP_PORT:', process.env.SMTP_PORT);
-    console.log('SMTP_USER:', process.env.SMTP_USER);
-    console.log('SMTP_PASS length:', process.env.SMTP_PASS ? process.env.SMTP_PASS.length : 'undefined');
-    console.log('EMAIL_FROM:', process.env.EMAIL_FROM);
+  private getTransporter(): nodemailer.Transporter {
+    if (this.transporter) {
+      return this.transporter;
+    }
+
+    // Verify environment variables are loaded
+    if (!process.env.SMTP_HOST || !process.env.SMTP_PASS || !process.env.SMTP_USER) {
+      console.error('❌ Missing required environment variables for email service');
+    }
 
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "mail.aftaza.com",
@@ -44,16 +36,19 @@ export class EmailService {
         minVersion: "TLSv1.2", // Require modern TLS
         ciphers: "SSLv3" // Allow SSL for compatibility
       },
-      debug: true, // Enable debug logging
-      logger: true, // Enable logger
+      debug: false, // Disable debug logging in production
+      logger: false, // Disable logger in production
       connectionTimeout: 10000, // 10 second timeout
       greetingTimeout: 5000, // 5 second greeting timeout
       socketTimeout: 60000, // 1 minute socket timeout
     });
+
+    return this.transporter;
   }
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
+      const transporter = this.getTransporter();
       const mailOptions = {
         from: process.env.EMAIL_FROM || process.env.SMTP_USER,
         to: options.to,
@@ -62,7 +57,7 @@ export class EmailService {
         text: options.text,
       };
 
-      await this.transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
       return true;
     } catch (error) {
       console.error("Email sending failed:", error);
@@ -321,4 +316,24 @@ ${new Date().getFullYear()} Aftaza. All rights reserved.
   }
 }
 
-export const emailService = new EmailService();
+// Lazy initialization - only create instance when first used
+let _emailService: EmailService | null = null;
+
+function getEmailService(): EmailService {
+  if (!_emailService) {
+    _emailService = new EmailService();
+  }
+  return _emailService;
+}
+
+export const emailService = {
+  sendEmail: (options: EmailOptions) => {
+    return getEmailService().sendEmail(options);
+  },
+  generateVerificationEmail: (name: string, code: string, role: string) => {
+    return getEmailService().generateVerificationEmail(name, code, role);
+  },
+  generatePasswordResetEmail: (name: string, resetUrl: string) => {
+    return getEmailService().generatePasswordResetEmail(name, resetUrl);
+  }
+};
