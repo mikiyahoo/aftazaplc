@@ -15,7 +15,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { loginRateLimit } from "@/lib/rateLimit";
 
 export async function POST(request: NextRequest) {
