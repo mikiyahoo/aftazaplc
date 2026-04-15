@@ -14,9 +14,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // Normal authentication flow for admin routes when temp access is disabled
-  if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
+if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
     const cookieStore = cookies();
     const sessionId = cookieStore.get("admin_session")?.value;
+
+    // Allow login page without session
+    if (pathname === "/admin/login") {
+      return NextResponse.next();
+    }
 
     if (!sessionId) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
