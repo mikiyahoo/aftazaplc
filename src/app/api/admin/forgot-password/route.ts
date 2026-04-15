@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     // Check rate limiting for forgot password
     const rateLimitResult = forgotPasswordRateLimit(request);
     if (rateLimitResult.blocked) {
-      await logForgotPasswordRequest(clientIP, request.headers.get('user-agent') || undefined, 'rate_limited');
+      await logForgotPasswordRequest('rate_limited', clientIP, request.headers.get('user-agent') || undefined, false, 'rate_limited');
       return NextResponse.json(
         { error: rateLimitResult.message },
         { status: 429, headers: { 'Retry-After': (rateLimitResult.retryAfter || 3600).toString() } }
