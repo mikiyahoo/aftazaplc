@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { requireAdminAuth } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/admin-auth";
 import {
   Building2,
   MessageSquare,
@@ -53,6 +53,9 @@ async function getStats() {
 }
 
 export default async function AdminDashboardPage() {
+  // Check authentication
+  const user = await requireAdminSession();
+
   const {
     propertyCount,
     inquiryCount,
@@ -183,4 +186,3 @@ export default async function AdminDashboardPage() {
     </div>
   );
 }
-

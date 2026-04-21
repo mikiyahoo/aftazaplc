@@ -66,30 +66,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Set session cookie
-    const cookieStore = cookies();
-    cookieStore.set("admin_session", account.id, {
+    // Set session cookie and return success with redirect
+    const response = NextResponse.json({
+      success: true,
+      redirectUrl: "/admin"
+    });
+    
+    response.cookies.set("admin_session", account.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 60 * 60 * 24, // 24 hours
       path: "/",
     });
 
-    return NextResponse.json({ 
-      success: true,
-      user: {
-        id: account.id,
-        name: account.name,
-        email: account.email,
-        role: account.role
-      },
-      redirectUrl: '/admin'
-    });
+    return response;
   } catch (error) {
     console.error("Login error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Unable to connect. Please try again. " + errorMessage },
       { status: 500 }
     );
   }

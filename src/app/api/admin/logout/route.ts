@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
-  const cookieStore = cookies();
-  cookieStore.delete("admin_session");
+export async function GET(request: NextRequest) {
+  const response = NextResponse.redirect(new URL("/admin/login", request.url));
+  response.cookies.delete("admin_session");
+  return response;
+}
 
-  return NextResponse.redirect(new URL("/admin/login", "http://localhost:3000"));
+export async function POST(request: NextRequest) {
+  const response = NextResponse.redirect(new URL("/admin/login", request.url));
+  response.cookies.delete("admin_session");
+  return response;
 }

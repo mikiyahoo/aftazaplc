@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=2048 next dev",
-    "build": "cross-env NEXT_MINIMAL_THREADS=1 NODE_OPTIONS=--max-old-space-size=4096 next build",
+    "build": "prisma generate && cross-env NEXT_MINIMAL_THREADS=1 NODE_OPTIONS=--max-old-space-size=4096 next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint"
   },
@@ -35,7 +36,7 @@
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.27",
-    "cross-env": "^10.1.0",
+    "cross-env": "10.0.0",
     "pg": "^8.20.0",
     "postcss": "^8.5.6",
     "prisma": "^5.22.0",

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, getCsrfToken, getProviders } from "next-auth/react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -27,22 +26,26 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
       });
 
-      if (result?.error) {
-        setError(result.error);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Login failed");
+        setLoading(false);
         return;
       }
 
-      // Redirect to admin dashboard after successful login
-      router.push('/admin');
-    } catch {
+      // Success - redirect to admin
+      window.location.href = data.redirectUrl || "/admin";
+    } catch (err) {
+      console.error("Login error:", err);
       setError("An error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   };

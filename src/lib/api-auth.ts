@@ -1,22 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
 
 /**
- * Middleware function to check if the request is authenticated as admin
- * Returns the user token if authenticated, null otherwise
+ * Checks if the request has a valid admin session via admin_session cookie.
+ * Returns { authenticated: true, user: account } if valid, { authenticated: false } otherwise.
  */
 export async function requireAdminAuth(request: NextRequest) {
-  const token = await getToken({ 
-    req: request as any, 
-    secret: process.env.NEXTAUTH_SECRET 
-  });
+  const cookieStore = cookies();
+  const sessionId = cookieStore.get("admin_session")?.value;
 
-  // TEMPORARILY COMMENTED OUT ADMIN BLOCKING - Remove comments to re-enable
-  // if (!token || !token.role || token.role !== "admin") {
-  //   return null;
-  // }
+  if (!sessionId) {
+    return { authenticated: false };
+  }
 
-  return token;
+  try {
+    const account = await prisma.account.findUnique({
+      where: { id: sessionId },
+      select: { id: true, email: true, name: true, role: true, emailVerified: true }
+    });
+
+    if (!account || !account.emailVerified) {
+      return { authenticated: false };
+    }
+
+    return { authenticated: true, user: account };
+  } catch (error) {
+    console.error("Auth check failed:", error);
+    return { authenticated: false };
+  }
 }
 
 /**

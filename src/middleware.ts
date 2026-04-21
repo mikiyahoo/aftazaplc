@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { cookies } from "next/headers";
 
 // Check if temporary admin access is enabled
 const ADMIN_TEMP_ACCESS = process.env.ADMIN_TEMP_ACCESS === "true";
@@ -13,19 +12,40 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Normal authentication flow for admin routes when temp access is disabled
-if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
-    const cookieStore = cookies();
-    const sessionId = cookieStore.get("admin_session")?.value;
+  // Skip static files and api
+  if (pathname.startsWith("/_next") || pathname.startsWith("/api") || pathname === "/favicon.ico") {
+    return NextResponse.next();
+  }
 
-    // Allow login page without session
-    if (pathname === "/admin/login") {
+  // Public admin paths that don't require authentication
+  const publicAdminPaths = [
+    "/admin/login",
+    "/admin/register",
+    "/admin/forgot-password",
+    "/admin/reset-password",
+    "/admin/verify",
+  ];
+
+  const isPublicAdminPath = publicAdminPaths.some(path => pathname === path || pathname.startsWith(path + "/"));
+
+  // Only process /admin routes
+  if (pathname.startsWith("/admin")) {
+    // Allow public paths without session
+    if (isPublicAdminPath) {
       return NextResponse.next();
     }
+
+    // Get session from cookie header
+    const cookieHeader = request.headers.get("cookie") || "";
+    const match = cookieHeader.match(/admin_session=([^;]+)/);
+    const sessionId = match ? match[1] : null;
 
     if (!sessionId) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
+    
+    // Session exists - allow access
+    return NextResponse.next();
   }
 
   // Allow API routes, static files, and favicon
