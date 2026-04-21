@@ -48,12 +48,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow API routes, static files, and favicon
+  // Allow API routes, static files, favicon, and root path
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
-    pathname === "/favicon.ico"
+    pathname === "/favicon.ico" ||
+    pathname === "/" ||
+    pathname === ""
   ) {
     return NextResponse.next();
   }
