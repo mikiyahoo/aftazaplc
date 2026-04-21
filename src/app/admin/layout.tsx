@@ -1,35 +1,7 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 import { Home, Building2, MessageSquare, Star, Building, User, LogOut } from "lucide-react";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = cookies();
-  const sessionId = cookieStore.get("admin_session")?.value;
-  
-  let account = null;
-  let userEmail = "";
-  
-  if (sessionId) {
-    try {
-      account = await prisma.account.findUnique({
-        where: { id: sessionId },
-        select: { id: true, email: true, name: true, role: true }
-      });
-      userEmail = account?.email || "";
-    } catch (error) {
-      console.error("Database error in AdminLayout:", error);
-      cookies().delete("admin_session");
-      redirect("/admin/login");
-    }
-  }
-  
-  // If not authenticated, redirect to login
-  if (!account) {
-    redirect("/admin/login");
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
@@ -46,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <User className="w-4 h-4 text-[#c8a34d] mr-2" />
                 <span className="text-white font-semibold text-sm">Admin</span>
               </div>
-              <p className="text-xs text-gray-400 text-center truncate">{userEmail}</p>
+              <p className="text-xs text-gray-400 text-center">Loading...</p>
             </div>
             
             <nav className="space-y-2">

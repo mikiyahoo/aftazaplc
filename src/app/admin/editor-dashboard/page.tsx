@@ -1,18 +1,12 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { ArrowLeft, Shield, Eye, Edit3, FileText, Users, Settings } from "lucide-react";
-import { requireAdminAuth } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/admin-auth";
 
 export default async function EditorDashboard() {
   // Check authentication on the server side
-  const authResult = await requireAdminAuth(new Request("http://localhost:3003/admin/editor-dashboard", {
-    headers: {
-      'x-forwarded-for': '127.0.0.1',
-      'user-agent': 'Next.js'
-    }
-  }));
+  const user = await requireAdminSession();
   
-  if (!authResult.authenticated) {
+  if (!user) {
     // Redirect to login page if not authenticated
     redirect("/admin/login");
   }
@@ -40,12 +34,14 @@ export default async function EditorDashboard() {
                 <Edit3 className="w-4 h-4" />
                 <span>Switch to Admin View</span>
               </a>
-              <a
-                href="/api/admin/logout"
-                className="text-sm text-gray-600 hover:text-gray-900"
-              >
-                Logout
-              </a>
+              <form action="/api/admin/logout" method="POST" className="inline">
+                <button
+                  type="submit"
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Logout
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -82,7 +78,7 @@ export default async function EditorDashboard() {
             <div className="mt-4">
               <a
                 href="/admin/inquiries"
-                className="text-green-600 hover:text-green-800 text-sm font-medium"
+               className="text-green-600 hover:text-green-800 text-sm font-medium"
               >
                 View Inquiries →
               </a>

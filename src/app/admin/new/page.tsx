@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { redirect } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
 import { markdownToHtml } from "@/lib/markdown";
-import { requireAdminAuth } from "@/lib/auth";
 
 type PostFormState = {
   title: string;
@@ -33,20 +31,7 @@ async function fetchPost(id: string) {
   return res.json();
 }
 
-export default async function AdminNewPostPage() {
-  // Check authentication on the server side
-  const authResult = await requireAdminAuth(new Request("http://localhost:3003/admin/new", {
-    headers: {
-      'x-forwarded-for': '127.0.0.1',
-      'user-agent': 'Next.js'
-    }
-  }));
-  
-  if (!authResult.authenticated) {
-    // Redirect to login page if not authenticated
-    redirect("/admin/login");
-  }
-
+export default function AdminNewPostPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");
@@ -64,6 +49,20 @@ export default async function AdminNewPostPage() {
     thumbnailUrl: "",
     published: false,
   });
+
+  useEffect(() => {
+    // Check auth on mount
+    fetch("/api/admin/check-session")
+      .then(res => res.json())
+      .then(data => {
+        if (!data.authenticated) {
+          router.push("/admin/login");
+        }
+      })
+      .catch(() => {
+        router.push("/admin/login");
+      });
+  }, [router]);
 
   useEffect(() => {
     if (!editId) return;
@@ -289,32 +288,6 @@ export default async function AdminNewPostPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  Content (Markdown)
-                </label>
-
-                <div className="flex flex-wrap gap-2 rounded-md border border-slate-200 p-2 bg-slate-50">
-                  <button type="button" onClick={() => applyFormatting("h2")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">H2</button>
-                  <button type="button" onClick={() => applyFormatting("h3")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">H3</button>
-                  <button type="button" onClick={() => applyFormatting("bold")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Bold</button>
-                  <button type="button" onClick={() => applyFormatting("italic")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Italic</button>
-                  <button type="button" onClick={() => applyFormatting("link")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Link</button>
-                  <button type="button" onClick={() => applyFormatting("list")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">List</button>
-                  <button type="button" onClick={() => applyFormatting("quote")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Quote</button>
-                  <button type="button" onClick={() => applyFormatting("code")} className="px-2 py-1 text-[10px] font-black uppercase border border-slate-300 bg-white hover:border-[#c8a34d]">Code</button>
-                </div>
-
-                <textarea
-                  ref={contentRef}
-                  rows={12}
-                  value={form.content}
-                  onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                  className="w-full bg-slate-50 p-4 text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 outline-none border border-transparent focus:border-[#c8a34d]/30 font-mono"
-                  placeholder="Use markdown. Example: ## Heading, **bold**, *italic*, [link](https://...)"
-                />
-              </div>
-
-              <div className="space-y-2">
                 <label
                   className="text-[10px] font-bold uppercase tracking-widest text-slate-400"
                   htmlFor="thumbnail-file"
@@ -377,7 +350,6 @@ export default async function AdminNewPostPage() {
                   /insights/{effectiveSlug || "slug-pending"}
                 </p>
                 {thumbnailPreviewUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={thumbnailPreviewUrl}
                     alt="Thumbnail preview"

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadFile } from '@/lib/fileUpload';
-import { requireAdminAuth } from '@/lib/auth';
+import { requireAdminAuth } from '@/lib/api-auth';
 
 export async function POST(request: NextRequest) {
   try {
